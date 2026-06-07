@@ -1,1188 +1,462 @@
+cat > /mnt/user-data/outputs/rackup.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RackUp — Smart Grocery Intelligence</title>
+<title>RackUp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black: #050505;
-    --surface: #0d0d0d;
-    --surface2: #141414;
-    --surface3: #1c1c1c;
-    --border: #222;
-    --lime: #b4ff00;
-    --lime-dim: #7ab000;
-    --lime-glow: rgba(180,255,0,0.12);
-    --lime-glow2: rgba(180,255,0,0.06);
-    --text: #f0f0f0;
-    --text-muted: #666;
-    --text-dim: #999;
-    --red: #ff3b3b;
-    --gold: #f5c518;
-    --radius: 6px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+:root {
+  --black:#050505; --surface:#0d0d0d; --surface2:#141414; --surface3:#1c1c1c;
+  --border:#222; --lime:#b4ff00; --lime-dim:#7ab000; --lime-glow:rgba(180,255,0,0.12);
+  --lime-glow2:rgba(180,255,0,0.06); --text:#f0f0f0; --muted:#666; --dim:#999;
+  --red:#ff3b3b; --gold:#f5c518; --r:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(180,255,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(180,255,0,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 
-  /* GRID BG */
-  body::before {
-    content:'';
-    position:fixed;
-    inset:0;
-    background-image:
-      linear-gradient(rgba(180,255,0,0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(180,255,0,0.035) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events:none;
-    z-index:0;
-  }
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1;min-height:100vh;}
+.screen.active{display:block;}
 
-  /* ── SCREENS ── */
-  .screen { display:none; position:relative; z-index:1; min-height:100vh; }
-  .screen.active { display:block; }
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(5,5,5,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--lime);cursor:pointer;}
+.nav-logo em{color:var(--text);font-style:normal;}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:6px 12px;cursor:pointer;border-radius:var(--r);transition:all .2s;text-transform:uppercase;}
+.nav-tab:hover{color:var(--text);background:var(--surface2);}
+.nav-tab.on{color:var(--lime);background:var(--lime-glow2);}
+.nav-cta{background:var(--lime);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:5px 14px;border:none;border-radius:var(--r);cursor:pointer;transition:opacity .2s;}
+.nav-cta:hover{opacity:.85;}
 
-  /* ══════════════════════════
-     NAV
-  ══════════════════════════ */
-  nav {
-    position:sticky; top:0; z-index:100;
-    background: rgba(5,5,5,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-    height: 56px;
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .nav-logo {
-    font-family:'Bebas Neue',sans-serif;
-    font-size:28px;
-    letter-spacing:3px;
-    color:var(--lime);
-    cursor:pointer;
-  }
-  .nav-logo span { color:var(--text-muted); font-size:11px; font-family:'DM Mono',monospace; letter-spacing:1px; vertical-align:middle; margin-left:8px; }
-  .nav-tabs {
-    display:flex; gap:4px;
-  }
-  .nav-tab {
-    background:none; border:none; color:var(--text-muted);
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px;
-    padding:6px 12px; cursor:pointer; border-radius:var(--radius);
-    transition: all 0.2s; text-transform:uppercase;
-  }
-  .nav-tab:hover { color:var(--text); background:var(--surface2); }
-  .nav-tab.active { color:var(--lime); background:var(--lime-glow2); }
-  .nav-beta {
-    background: var(--lime); color:var(--black);
-    font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:2px;
-    padding:5px 14px; border:none; border-radius:var(--radius); cursor:pointer;
-    transition: opacity 0.2s;
-  }
-  .nav-beta:hover { opacity:0.85; }
+/* HERO */
+.hero{padding:80px 24px 60px;max-width:900px;margin:0 auto;text-align:center;}
+.beta-badge{display:inline-block;border:1px solid var(--lime);color:var(--lime);font-size:10px;letter-spacing:3px;padding:5px 16px;border-radius:50px;margin-bottom:32px;background:var(--lime-glow2);}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,14vw,140px);letter-spacing:8px;line-height:.9;color:var(--text);margin-bottom:8px;}
+.hero h1 span{color:var(--lime);}
+.hero-sub{font-size:12px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:32px;}
+.hero-desc{font-size:15px;color:var(--dim);line-height:1.8;max-width:580px;margin:0 auto 48px;}
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-lime{background:var(--lime);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;padding:14px 36px;border:none;border-radius:var(--r);cursor:pointer;transition:all .2s;}
+.btn-lime:hover{opacity:.9;transform:translateY(-1px);}
+.btn-ghost{background:none;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;padding:14px 36px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--lime);color:var(--lime);}
 
-  /* ══════════════════════════
-     LANDING
-  ══════════════════════════ */
-  .hero {
-    padding: 80px 24px 60px;
-    max-width: 900px;
-    margin: 0 auto;
-    text-align:center;
-  }
-  .hero-beta-badge {
-    display:inline-block;
-    border:1px solid var(--lime);
-    color:var(--lime);
-    font-size:10px; letter-spacing:3px;
-    padding:5px 16px; border-radius:50px;
-    margin-bottom:32px;
-    background: var(--lime-glow2);
-    animation: pulse-badge 3s ease-in-out infinite;
-  }
-  @keyframes pulse-badge {
-    0%,100% { box-shadow:0 0 0 0 var(--lime-glow); }
-    50% { box-shadow:0 0 0 6px transparent; }
-  }
-  .hero h1 {
-    font-family:'Bebas Neue',sans-serif;
-    font-size: clamp(64px, 14vw, 140px);
-    letter-spacing: 8px;
-    line-height:0.9;
-    color:var(--text);
-    margin-bottom:8px;
-  }
-  .hero h1 span { color:var(--lime); }
-  .hero-sub {
-    font-size:12px; letter-spacing:3px; color:var(--text-muted);
-    text-transform:uppercase; margin-bottom:32px;
-  }
-  .hero-desc {
-    font-size:15px; color:var(--text-dim); line-height:1.8;
-    max-width:580px; margin:0 auto 48px;
-  }
-  .hero-cta-row {
-    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
-  }
-  .btn-primary {
-    background:var(--lime); color:var(--black);
-    font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px;
-    padding:14px 36px; border:none; border-radius:var(--radius);
-    cursor:pointer; transition:all 0.2s;
-  }
-  .btn-primary:hover { opacity:0.9; transform:translateY(-1px); box-shadow:0 6px 20px var(--lime-glow); }
-  .btn-ghost {
-    background:none; color:var(--text);
-    font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px;
-    padding:14px 36px; border:1px solid var(--border); border-radius:var(--radius);
-    cursor:pointer; transition:all 0.2s;
-  }
-  .btn-ghost:hover { border-color:var(--lime); color:var(--lime); }
+/* BANNER */
+.banner{margin:0 auto 60px;max-width:900px;padding:0 24px;}
+.banner-inner{background:var(--lime-glow2);border:1px solid rgba(180,255,0,0.2);border-radius:var(--r);padding:20px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.banner-inner h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--lime);margin-bottom:2px;}
+.banner-inner p{font-size:11px;color:var(--dim);}
 
-  .beta-banner {
-    margin:0 24px 60px;
-    background: var(--lime-glow2);
-    border:1px solid rgba(180,255,0,0.2);
-    border-radius:var(--radius);
-    padding:20px 28px;
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    flex-wrap:wrap;
-    max-width:900px; margin-left:auto; margin-right:auto;
-  }
-  .beta-banner-left { display:flex; align-items:center; gap:16px; }
-  .beta-icon { font-size:28px; }
-  .beta-banner h3 {
-    font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--lime);
-    margin-bottom:2px;
-  }
-  .beta-banner p { font-size:11px; color:var(--text-dim); }
+/* SECTIONS */
+.section{max-width:900px;margin:0 auto;padding:0 24px 60px;}
+.sect-label{font-size:10px;letter-spacing:4px;color:var(--lime);text-transform:uppercase;margin-bottom:12px;}
+.sect-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--text);margin-bottom:40px;line-height:1;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;}
+.feat{background:var(--surface);border:1px solid var(--border);padding:28px 24px;transition:all .2s;position:relative;overflow:hidden;}
+.feat::before{content:'';position:absolute;top:0;left:0;width:2px;height:0;background:var(--lime);transition:height .3s;}
+.feat:hover::before{height:100%;}
+.feat:hover{background:var(--surface2);}
+.feat-icon{font-size:22px;margin-bottom:14px;}
+.feat h3{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.feat p{font-size:11px;color:var(--muted);line-height:1.7;}
+.feat-badge{display:inline-block;background:var(--lime);color:var(--black);font-size:8px;letter-spacing:2px;padding:2px 8px;border-radius:2px;font-weight:700;margin-top:10px;}
 
-  /* FEATURES GRID */
-  .section {
-    max-width:900px; margin:0 auto; padding:0 24px 60px;
-  }
-  .section-label {
-    font-size:10px; letter-spacing:4px; color:var(--lime); text-transform:uppercase;
-    margin-bottom:12px;
-  }
-  .section-title {
-    font-family:'Bebas Neue',sans-serif; font-size:42px; letter-spacing:3px;
-    color:var(--text); margin-bottom:40px; line-height:1;
-  }
-  .features-grid {
-    display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:2px;
-  }
-  .feat-card {
-    background:var(--surface); border:1px solid var(--border);
-    padding:28px 24px;
-    transition: all 0.2s;
-    position:relative; overflow:hidden;
-  }
-  .feat-card::before {
-    content:''; position:absolute; top:0; left:0;
-    width:2px; height:0;
-    background:var(--lime);
-    transition: height 0.3s;
-  }
-  .feat-card:hover::before { height:100%; }
-  .feat-card:hover { background:var(--surface2); }
-  .feat-icon {
-    font-size:22px; margin-bottom:14px;
-  }
-  .feat-card h3 {
-    font-family:'Syne',sans-serif; font-weight:700; font-size:13px;
-    color:var(--text); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;
-  }
-  .feat-card p { font-size:11px; color:var(--text-muted); line-height:1.7; }
-  .feat-badge {
-    display:inline-block; background:var(--lime); color:var(--black);
-    font-size:8px; letter-spacing:2px; padding:2px 8px;
-    border-radius:2px; font-weight:700; margin-top:10px;
-  }
+/* APP LAYOUT */
+.app-layout{display:flex;min-height:calc(100vh - 56px);}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;}
+.sb-sect{padding:0 16px;margin-bottom:24px;}
+.sb-label{font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;padding-left:4px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;transition:all .15s;font-size:12px;color:var(--dim);border:1px solid transparent;}
+.sb-item:hover{background:var(--surface2);color:var(--text);}
+.sb-item.on{background:var(--lime-glow2);color:var(--lime);border-color:rgba(180,255,0,0.15);}
+.sb-icon{font-size:14px;width:20px;text-align:center;}
+.sb-badge{margin-left:auto;background:var(--lime);color:var(--black);font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700;}
+.app-main{flex:1;padding:28px;overflow-y:auto;}
+.app-tab{display:none;}
+.app-tab.on{display:block;}
 
-  /* PRICING */
-  .pricing-grid {
-    display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px;
-    margin-bottom:32px;
-  }
-  .price-card {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:var(--radius); padding:32px 24px;
-    position:relative; transition:all 0.2s;
-  }
-  .price-card.featured {
-    border-color:var(--lime);
-    background:var(--surface2);
-  }
-  .price-card.featured::after {
-    content:'BEST VALUE';
-    position:absolute; top:-1px; right:20px;
-    background:var(--lime); color:var(--black);
-    font-size:8px; letter-spacing:2px; font-weight:700;
-    padding:3px 10px;
-  }
-  .price-tag {
-    font-family:'Bebas Neue',sans-serif; font-size:52px; color:var(--lime);
-    line-height:1; margin-bottom:4px;
-  }
-  .price-tag span { font-size:18px; color:var(--text-muted); }
-  .price-tier {
-    font-family:'Syne',sans-serif; font-weight:800; font-size:11px;
-    text-transform:uppercase; letter-spacing:2px; color:var(--text-dim);
-    margin-bottom:20px;
-  }
-  .price-features { list-style:none; margin-bottom:28px; }
-  .price-features li {
-    font-size:11px; color:var(--text-dim); padding:5px 0;
-    border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;
-  }
-  .price-features li::before { content:'→'; color:var(--lime); font-size:10px; }
-  .price-features li.locked::before { content:'✕'; color:var(--text-muted); }
-  .price-features li.locked { opacity:0.45; }
-  .price-btn {
-    width:100%; padding:12px; border:none; border-radius:var(--radius);
-    font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:2px;
-    cursor:pointer; transition:all 0.2s;
-  }
-  .price-btn-lime { background:var(--lime); color:var(--black); }
-  .price-btn-lime:hover { opacity:0.9; }
-  .price-btn-outline { background:none; color:var(--text); border:1px solid var(--border); }
-  .price-btn-outline:hover { border-color:var(--lime); color:var(--lime); }
-  .savings-note {
-    text-align:center; font-size:11px; color:var(--text-muted);
-    margin-top:-16px; margin-bottom:40px;
-  }
-  .savings-note strong { color:var(--lime); }
+/* PAGE TITLES */
+.pg-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--text);margin-bottom:4px;}
+.pg-title span{color:var(--lime);}
+.pg-sub{font-size:11px;color:var(--muted);margin-bottom:24px;letter-spacing:1px;}
 
-  /* ══════════════════════════
-     APP SCREEN
-  ══════════════════════════ */
-  .app-layout {
-    display:flex; min-height:calc(100vh - 56px);
-  }
-  .sidebar {
-    width:220px; flex-shrink:0;
-    background:var(--surface);
-    border-right:1px solid var(--border);
-    padding:20px 0;
-    position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
-  }
-  .sidebar-section { padding:0 16px; margin-bottom:24px; }
-  .sidebar-label {
-    font-size:9px; letter-spacing:3px; color:var(--text-muted);
-    text-transform:uppercase; margin-bottom:8px; padding-left:4px;
-  }
-  .sidebar-item {
-    display:flex; align-items:center; gap:10px;
-    padding:9px 12px; border-radius:var(--radius);
-    cursor:pointer; transition:all 0.15s;
-    font-size:12px; color:var(--text-dim);
-    border:1px solid transparent;
-  }
-  .sidebar-item:hover { background:var(--surface2); color:var(--text); }
-  .sidebar-item.active {
-    background:var(--lime-glow2); color:var(--lime);
-    border-color:rgba(180,255,0,0.15);
-  }
-  .sidebar-item .si-icon { font-size:14px; width:20px; text-align:center; }
-  .sidebar-item .si-badge {
-    margin-left:auto; background:var(--lime); color:var(--black);
-    font-size:8px; padding:1px 6px; border-radius:10px; font-weight:700;
-  }
-  .app-main { flex:1; padding:28px 28px; overflow-y:auto; }
+/* NOTIF BAR */
+.notif{background:rgba(180,255,0,0.08);border:1px solid rgba(180,255,0,0.2);border-radius:var(--r);padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:11px;color:var(--dim);}
+.notif strong{color:var(--lime);}
+.notif-red{background:rgba(255,59,59,0.08);border-color:rgba(255,59,59,0.2);}
+.notif-red strong{color:var(--red);}
 
-  /* Dashboard panels */
-  .dash-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:24px; }
-  .stat-card {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:var(--radius); padding:20px 18px;
-  }
-  .stat-card .stat-val {
-    font-family:'Bebas Neue',sans-serif; font-size:38px; color:var(--lime); line-height:1;
-  }
-  .stat-card .stat-label { font-size:10px; letter-spacing:2px; color:var(--text-muted); margin-top:4px; }
-  .stat-card .stat-sub { font-size:11px; color:var(--text-dim); margin-top:8px; }
+/* STAT CARDS */
+.dash-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 18px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--lime);line-height:1;}
+.stat-lbl{font-size:10px;letter-spacing:2px;color:var(--muted);margin-top:4px;}
+.stat-sub{font-size:11px;color:var(--dim);margin-top:8px;}
 
-  .panel {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:var(--radius); margin-bottom:16px; overflow:hidden;
-  }
-  .panel-header {
-    padding:14px 20px; border-bottom:1px solid var(--border);
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .panel-header h3 {
-    font-family:'Syne',sans-serif; font-weight:700; font-size:12px;
-    text-transform:uppercase; letter-spacing:2px; color:var(--text);
-  }
-  .panel-body { padding:20px; }
-  .panel-action {
-    background:none; border:1px solid var(--border); color:var(--text-dim);
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px;
-    padding:5px 12px; border-radius:var(--radius); cursor:pointer; transition:all 0.2s;
-  }
-  .panel-action:hover { border-color:var(--lime); color:var(--lime); }
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;}
+.ph{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ph h3{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--text);}
+.pb{padding:20px;}
+.pa{background:none;border:1px solid var(--border);color:var(--dim);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:5px 12px;border-radius:var(--r);cursor:pointer;transition:all .2s;}
+.pa:hover{border-color:var(--lime);color:var(--lime);}
 
-  /* List items */
-  .list-row {
-    display:flex; align-items:center; gap:12px; padding:10px 0;
-    border-bottom:1px solid rgba(255,255,255,0.04);
-    font-size:12px;
-  }
-  .list-row:last-child { border-bottom:none; }
-  .list-row .lr-icon { font-size:16px; width:28px; text-align:center; }
-  .list-row .lr-name { flex:1; color:var(--text); }
-  .list-row .lr-detail { color:var(--text-muted); font-size:11px; }
-  .list-row .lr-price { color:var(--lime); font-weight:500; min-width:60px; text-align:right; }
-  .list-row .lr-best {
-    background:var(--lime); color:var(--black);
-    font-size:8px; letter-spacing:1px; padding:2px 7px; border-radius:2px; font-weight:700;
-  }
+/* LIST ROW */
+.lr{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;}
+.lr:last-child{border-bottom:none;}
+.lr-name{flex:1;color:var(--text);}
+.lr-detail{color:var(--muted);font-size:11px;}
+.lr-price{color:var(--lime);font-weight:500;min-width:56px;text-align:right;}
+.best-tag{background:var(--lime);color:var(--black);font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:2px;font-weight:700;}
 
-  /* Compare table */
-  .compare-table { width:100%; border-collapse:collapse; font-size:11px; }
-  .compare-table th {
-    text-align:left; padding:8px 12px;
-    color:var(--text-muted); font-weight:400; letter-spacing:1px;
-    border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase;
-  }
-  .compare-table td {
-    padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.04);
-    color:var(--text-dim);
-  }
-  .compare-table tr:last-child td { border-bottom:none; }
-  .compare-table .best-price { color:var(--lime); font-weight:500; }
-  .compare-table .store-name { color:var(--text); }
-  .compare-table .strikethrough { text-decoration:line-through; opacity:0.4; }
-  .compare-table tr.winner { background:var(--lime-glow2); }
-  .compare-table tr.winner td { color:var(--text); }
+/* GROCERY LIST */
+.add-row{display:flex;gap:8px;margin-bottom:16px;}
+.add-row input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:10px 14px;border-radius:var(--r);outline:none;transition:border-color .2s;}
+.add-row input:focus{border-color:var(--lime);}
+.add-row input::placeholder{color:var(--muted);}
+.add-row button{background:var(--lime);color:var(--black);border:none;border-radius:var(--r);padding:10px 18px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;}
+.gi{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;transition:all .2s;}
+.gi:hover{border-color:rgba(180,255,0,0.2);}
+.gi input[type=checkbox]{accent-color:var(--lime);width:14px;height:14px;flex-shrink:0;}
+.gi-name{flex:1;font-size:12px;color:var(--text);}
+.gi-qty{font-size:11px;color:var(--muted);min-width:30px;}
+.gi-store{font-size:10px;color:var(--dim);}
+.gi-price{font-size:12px;color:var(--lime);min-width:56px;text-align:right;}
+.gi-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;transition:color .2s;padding:2px 6px;}
+.gi-del:hover{color:var(--red);}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state .es-icon{font-size:40px;margin-bottom:16px;}
+.empty-state p{font-size:12px;line-height:1.8;}
 
-  /* Basket optimizer */
-  .optimizer-result {
-    background:var(--surface2); border:1px solid rgba(180,255,0,0.2);
-    border-radius:var(--radius); padding:20px;
-  }
-  .optimizer-result .savings-big {
-    font-family:'Bebas Neue',sans-serif; font-size:56px; color:var(--lime); line-height:1;
-    margin-bottom:4px;
-  }
-  .optimizer-store-split { display:flex; gap:12px; flex-wrap:wrap; margin-top:20px; }
-  .store-bucket {
-    flex:1; min-width:140px;
-    background:var(--surface3); border:1px solid var(--border);
-    border-radius:var(--radius); padding:14px;
-  }
-  .store-bucket h4 {
-    font-family:'Syne',sans-serif; font-weight:700; font-size:11px;
-    text-transform:uppercase; letter-spacing:1px; color:var(--text);
-    margin-bottom:10px;
-  }
-  .store-bucket .item-chip {
-    background:var(--border); color:var(--text-dim);
-    font-size:10px; padding:3px 8px; border-radius:3px;
-    display:inline-block; margin:2px;
-  }
-  .store-bucket .bucket-total {
-    margin-top:10px; font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--lime);
-  }
+/* COMPARE TABLE */
+.ctable{width:100%;border-collapse:collapse;font-size:11px;}
+.ctable th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:400;letter-spacing:1px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;}
+.ctable td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--dim);}
+.ctable tr:last-child td{border-bottom:none;}
+.ctable .winner{background:var(--lime-glow2);}
+.ctable .winner td{color:var(--text);}
+.ctable .best{color:var(--lime);font-weight:500;}
+.ctable .struck{text-decoration:line-through;opacity:.4;}
 
-  /* Stores connections */
-  .store-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:8px; }
-  .store-tile {
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:16px;
-    display:flex; flex-direction:column; align-items:center; gap:8px;
-    cursor:pointer; transition:all 0.2s;
-  }
-  .store-tile:hover { border-color:var(--lime); }
-  .store-tile.connected { border-color:rgba(180,255,0,0.3); }
-  .store-tile .st-emoji { font-size:24px; }
-  .store-tile .st-name { font-size:11px; color:var(--text); font-weight:500; }
-  .store-tile .st-status { font-size:9px; letter-spacing:1px; color:var(--text-muted); }
-  .store-tile.connected .st-status { color:var(--lime); }
-  .store-tile .st-dot {
-    width:6px; height:6px; border-radius:50%;
-    background:var(--border);
-  }
-  .store-tile.connected .st-dot { background:var(--lime); box-shadow:0 0 6px var(--lime); }
+/* OPTIMIZER */
+.opt-result{background:var(--surface2);border:1px solid rgba(180,255,0,0.2);border-radius:var(--r);padding:24px;}
+.opt-big{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--lime);line-height:1;margin-bottom:4px;}
+.store-split{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+.store-bucket{flex:1;min-width:140px;background:var(--surface3);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.store-bucket h4{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text);margin-bottom:10px;}
+.chip{background:var(--border);color:var(--dim);font-size:10px;padding:3px 8px;border-radius:3px;display:inline-block;margin:2px;}
+.bucket-total{margin-top:10px;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--lime);}
 
-  /* Receipt */
-  .receipt-scan-area {
-    border:2px dashed var(--border); border-radius:var(--radius);
-    padding:48px 24px; text-align:center; cursor:pointer; transition:all 0.2s;
-    margin-bottom:20px;
-  }
-  .receipt-scan-area:hover { border-color:var(--lime); background:var(--lime-glow2); }
-  .receipt-scan-area .rs-icon { font-size:40px; margin-bottom:12px; }
-  .receipt-scan-area p { font-size:12px; color:var(--text-muted); }
-  .receipt-scan-area strong { color:var(--lime); }
+/* RECEIPT SCAN */
+.scan-area{border:2px dashed var(--border);border-radius:var(--r);padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px;}
+.scan-area:hover{border-color:var(--lime);background:var(--lime-glow2);}
+.scan-area .sa-icon{font-size:40px;margin-bottom:12px;}
+.scan-area p{font-size:12px;color:var(--muted);}
+.scan-area strong{color:var(--lime);}
+.rc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:8px;display:flex;align-items:center;gap:16px;}
+.rc-store{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);}
+.rc-date{font-size:10px;color:var(--muted);}
+.rc-total{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--lime);margin-left:auto;}
+.rc-pending{background:rgba(245,197,24,.15);color:var(--gold);font-size:8px;letter-spacing:1px;padding:2px 8px;border-radius:2px;font-weight:700;}
+.rc-done{font-size:9px;color:var(--lime);letter-spacing:1px;}
+.rc-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;margin-left:8px;}
+.rc-del:hover{color:var(--red);}
 
-  .receipt-card {
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:16px 20px; margin-bottom:8px;
-    display:flex; align-items:center; gap:16px;
-  }
-  .receipt-card .rc-store { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
-  .receipt-card .rc-date { font-size:10px; color:var(--text-muted); }
-  .receipt-card .rc-total { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--lime); margin-left:auto; }
-  .receipt-card .rc-tag {
-    background:rgba(245,197,24,0.15); color:var(--gold);
-    font-size:8px; letter-spacing:1px; padding:2px 8px; border-radius:2px; font-weight:700;
-  }
+/* REWARDS */
+.rw{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:8px;}
+.rw-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.rw-brand{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);}
+.rw-pts{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--lime);}
+.rw-pts span{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.promo{background:rgba(180,255,0,0.08);border:1px solid rgba(180,255,0,0.2);color:var(--lime);font-size:10px;padding:5px 10px;border-radius:3px;display:inline-block;margin:3px;}
 
-  /* Rewards */
-  .reward-card {
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:18px 20px; margin-bottom:8px;
-  }
-  .reward-card .rw-top { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-  .reward-card .rw-logo { font-size:22px; }
-  .reward-card .rw-brand { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
-  .reward-card .rw-pts {
-    margin-left:auto; font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--lime);
-  }
-  .reward-card .rw-pts span { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); }
-  .promo-chip {
-    background:rgba(180,255,0,0.08); border:1px solid rgba(180,255,0,0.2);
-    color:var(--lime); font-size:10px; padding:5px 10px;
-    border-radius:3px; display:inline-block; margin:3px;
-  }
+/* STORE TILES */
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:28px;}
+.st{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .2s;position:relative;}
+.st:hover{border-color:var(--lime);}
+.st.linked{border-color:rgba(180,255,0,.3);}
+.st-emoji{font-size:24px;}
+.st-name{font-size:11px;color:var(--text);font-weight:500;text-align:center;}
+.st-status{font-size:9px;letter-spacing:1px;color:var(--muted);}
+.st.linked .st-status{color:var(--lime);}
+.st-dot{width:6px;height:6px;border-radius:50%;background:var(--border);}
+.st.linked .st-dot{background:var(--lime);box-shadow:0 0 6px var(--lime);}
 
-  /* Grocery list */
-  .list-add-row {
-    display:flex; gap:8px; margin-bottom:16px;
-  }
-  .list-add-row input {
-    flex:1; background:var(--surface2); border:1px solid var(--border);
-    color:var(--text); font-family:'DM Mono',monospace; font-size:12px;
-    padding:10px 14px; border-radius:var(--radius); outline:none;
-    transition: border-color 0.2s;
-  }
-  .list-add-row input:focus { border-color:var(--lime); }
-  .list-add-row input::placeholder { color:var(--text-muted); }
-  .list-add-row button {
-    background:var(--lime); color:var(--black);
-    border:none; border-radius:var(--radius); padding:10px 18px;
-    font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:1px;
-    cursor:pointer;
-  }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px;width:100%;max-width:400px;}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px;}
+.modal p{font-size:11px;color:var(--muted);margin-bottom:24px;line-height:1.7;}
+.modal label{font-size:10px;letter-spacing:2px;color:var(--dim);display:block;margin-bottom:6px;text-transform:uppercase;}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:10px 14px;border-radius:var(--r);outline:none;margin-bottom:16px;transition:border-color .2s;}
+.modal input:focus{border-color:var(--lime);}
+.modal-btns{display:flex;gap:8px;margin-top:8px;}
+.modal-btns button{flex:1;padding:11px;border:none;border-radius:var(--r);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer;}
+.mbtn-lime{background:var(--lime);color:var(--black);}
+.mbtn-cancel{background:var(--surface2);border:1px solid var(--border)!important;color:var(--muted);border:none;}
+.modal-security{font-size:10px;color:var(--muted);text-align:center;margin-top:16px;}
+.modal-security strong{color:var(--lime);}
 
-  .grocery-item {
-    display:flex; align-items:center; gap:12px; padding:10px 14px;
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:var(--radius); margin-bottom:6px; transition:all 0.2s;
-  }
-  .grocery-item:hover { border-color:rgba(180,255,0,0.2); }
-  .grocery-item input[type=checkbox] { accent-color:var(--lime); width:14px; height:14px; }
-  .grocery-item .gi-name { flex:1; font-size:12px; color:var(--text); }
-  .grocery-item .gi-qty { font-size:11px; color:var(--text-muted); min-width:40px; }
-  .grocery-item .gi-best { font-size:11px; color:var(--lime); }
-  .grocery-item .gi-store { font-size:10px; color:var(--text-muted); }
-  .grocery-item .gi-del {
-    background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;
-    transition:color 0.2s; padding:2px 6px;
-  }
-  .grocery-item .gi-del:hover { color:var(--red); }
+/* PRICING */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:32px;}
+.pc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px 24px;position:relative;transition:all .2s;}
+.pc.feat{border-color:var(--lime);background:var(--surface2);}
+.pc.feat::after{content:'BEST VALUE';position:absolute;top:-1px;right:20px;background:var(--lime);color:var(--black);font-size:8px;letter-spacing:2px;font-weight:700;padding:3px 10px;}
+.price-tag{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--lime);line-height:1;margin-bottom:4px;}
+.price-tag span{font-size:18px;color:var(--muted);}
+.price-tier{font-family:'Syne',sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:20px;}
+.price-feats{list-style:none;margin-bottom:28px;}
+.price-feats li{font-size:11px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.price-feats li::before{content:'→';color:var(--lime);font-size:10px;}
+.price-feats li.no::before{content:'✕';color:var(--muted);}
+.price-feats li.no{opacity:.45;}
+.pbtn{width:100%;padding:12px;border:none;border-radius:var(--r);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;transition:all .2s;}
+.pbtn-lime{background:var(--lime);color:var(--black);}
+.pbtn-lime:hover{opacity:.9;}
+.pbtn-out{background:none;color:var(--text);border:1px solid var(--border);}
+.pbtn-out:hover{border-color:var(--lime);color:var(--lime);}
 
-  /* Page title */
-  .page-title {
-    font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:3px;
-    color:var(--text); margin-bottom:4px;
-  }
-  .page-title span { color:var(--lime); }
-  .page-sub { font-size:11px; color:var(--text-muted); margin-bottom:24px; letter-spacing:1px; }
-
-  /* Notification bar */
-  .notif-bar {
-    background:rgba(180,255,0,0.08); border:1px solid rgba(180,255,0,0.2);
-    border-radius:var(--radius); padding:12px 18px; margin-bottom:20px;
-    display:flex; align-items:center; gap:12px; font-size:11px; color:var(--text-dim);
-  }
-  .notif-bar strong { color:var(--lime); }
-
-  /* Mobile hint */
-  @media(max-width:640px) {
-    .sidebar { display:none; }
-    .hero h1 { font-size:72px; }
-    .nav-tabs { display:none; }
-  }
-
-  /* Animations */
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(16px); }
-    to { opacity:1; transform:translateY(0); }
-  }
-  .screen.active .hero { animation:fadeUp 0.5s ease both; }
-  .screen.active .beta-banner { animation:fadeUp 0.5s 0.1s ease both; }
-
-  /* Tab switching */
-  .app-tab { display:none; }
-  .app-tab.active { display:block; }
-
-  /* Pill tabs */
-  .pill-tabs { display:flex; gap:4px; margin-bottom:20px; flex-wrap:wrap; }
-  .pill-tab {
-    background:var(--surface2); border:1px solid var(--border); color:var(--text-muted);
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px;
-    padding:7px 14px; cursor:pointer; border-radius:var(--radius);
-    transition:all 0.2s; text-transform:uppercase;
-  }
-  .pill-tab:hover { color:var(--text); border-color:var(--text-muted); }
-  .pill-tab.active { background:var(--lime-glow); border-color:var(--lime); color:var(--lime); }
+@media(max-width:640px){.sidebar{display:none;}.hero h1{font-size:72px;}.nav-tabs{display:none;}}
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo" onclick="showScreen('landing')">RACK<span style="color:var(--lime)">UP</span> <span>BETA</span></div>
+  <div class="nav-logo" onclick="go('landing')">RACK<em style="color:var(--lime)">UP</em></div>
   <div class="nav-tabs">
-    <button class="nav-tab" onclick="showScreen('landing')">Home</button>
-    <button class="nav-tab" onclick="showScreen('app')">App</button>
-    <button class="nav-tab" onclick="showScreen('pricing')">Pricing</button>
+    <button class="nav-tab" id="ntab-landing" onclick="go('landing')">Home</button>
+    <button class="nav-tab" id="ntab-app" onclick="go('app')">App</button>
+    <button class="nav-tab" id="ntab-pricing" onclick="go('pricing')">Pricing</button>
   </div>
-  <button class="nav-beta" onclick="showScreen('app')">LAUNCH APP →</button>
+  <button class="nav-cta" onclick="go('app')">LAUNCH APP →</button>
 </nav>
 
-<!-- ══════════════════════════════════════
-     LANDING SCREEN
-══════════════════════════════════════ -->
+<!-- MODAL -->
+<div id="modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h3 id="modal-title">Connect Store</h3>
+    <p id="modal-desc">Enter your account credentials. They are stored encrypted on your device only — never uploaded.</p>
+    <label>Username / Email</label>
+    <input type="text" id="modal-user" placeholder="your@email.com" autocomplete="off">
+    <label>Password</label>
+    <input type="password" id="modal-pass" placeholder="••••••••" autocomplete="off">
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeModal()">CANCEL</button>
+      <button class="mbtn-lime" onclick="connectStore()">CONNECT</button>
+    </div>
+    <div class="modal-security">🔒 <strong>Zero server storage.</strong> Credentials never leave your device.</div>
+  </div>
+</div>
+
+<!-- ══ LANDING ══ -->
 <div id="screen-landing" class="screen active">
   <div class="hero">
-    <div class="hero-beta-badge">🟢 BETA — 90 DAYS FREE — NO CARD REQUIRED</div>
+    <div class="beta-badge">🟢 BETA — 90 DAYS FREE — NO CARD REQUIRED</div>
     <h1>RACK<span>UP</span></h1>
     <p class="hero-sub">Smart Grocery Intelligence Platform</p>
     <p class="hero-desc">Connect every grocery store and restaurant app. Compare every price instantly. Split your cart across stores and save the most money possible — automatically.</p>
-    <div class="hero-cta-row">
-      <button class="btn-primary" onclick="showScreen('app')">START FREE BETA →</button>
-      <button class="btn-ghost" onclick="showScreen('pricing')">SEE PRICING</button>
+    <div class="cta-row">
+      <button class="btn-lime" onclick="go('app')">START FREE BETA →</button>
+      <button class="btn-ghost" onclick="go('pricing')">SEE PRICING</button>
     </div>
   </div>
-
-  <div class="beta-banner">
-    <div class="beta-banner-left">
-      <div class="beta-icon">🔓</div>
-      <div>
-        <h3>BETA ACCESS — EVERYTHING FREE FOR 90 DAYS</h3>
-        <p>No credit card. No trial limits. Beta users locked in free forever as a loyalty reward.</p>
+  <div class="banner">
+    <div class="banner-inner">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="font-size:28px">🔓</div>
+        <div>
+          <h3>BETA ACCESS — EVERYTHING FREE FOR 90 DAYS</h3>
+          <p>No credit card. No trial limits. Beta users locked in free forever as a loyalty reward.</p>
+        </div>
       </div>
+      <button class="btn-lime" onclick="go('app')">JOIN BETA</button>
     </div>
-    <button class="btn-primary" onclick="showScreen('app')">JOIN BETA</button>
   </div>
-
   <div class="section">
-    <div class="section-label">Core Features</div>
-    <div class="section-title">STOP LEAVING MONEY ON THE TABLE</div>
-    <div class="features-grid">
-      <div class="feat-card">
-        <div class="feat-icon">🧺</div>
-        <h3>Basket Optimizer</h3>
-        <p>Analyzes your full list and calculates the cheapest split across all your stores. Exact items, exact stores, exact savings.</p>
-        <div class="feat-badge">KILLER FEATURE</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🔄</div>
-        <h3>Live Price Sync</h3>
-        <p>RackUp logs into your store accounts and pulls your personalized prices, sales, and digital coupons in real time.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">📊</div>
-        <h3>Full Compare Matrix</h3>
-        <p>Every item × every store — brand, size, regular price, sale price, after coupon, after rewards. True apples-to-apples.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">📸</div>
-        <h3>Receipt Scanner</h3>
-        <p>Snap a receipt. AI reads the merchant, items, total, and date. Full spending history with rewards submission reminders.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🍔</div>
-        <h3>Restaurant Rewards</h3>
-        <p>McDonald's, Starbucks, Chick-fil-A, Subway and more — all points and current promos in one place.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🔒</div>
-        <h3>Private by Design</h3>
-        <p>All credentials stored encrypted locally on your device. Nothing uploaded to any server. Your data never leaves.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">📰</div>
-        <h3>Weekly Ads + Flipp</h3>
-        <p>Pulls weekly sale prices from all major grocery stores via Flipp integration to layer on top of your connected accounts.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">🔔</div>
-        <h3>End-of-Day Summary</h3>
-        <p>Daily push notification listing all receipts pending rewards submission and exactly which programs to submit each one to.</p>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon">📦</div>
-        <h3>Open Source</h3>
-        <p>Full source available on GitHub. Community-driven. Audit the code. Fork it. Build on it.</p>
-      </div>
+    <div class="sect-label">Core Features</div>
+    <div class="sect-title">STOP LEAVING MONEY ON THE TABLE</div>
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-icon">🧺</div><h3>Basket Optimizer</h3><p>Analyzes your full list and calculates the cheapest split across all your stores. Exact items, exact stores, exact savings.</p><div class="feat-badge">KILLER FEATURE</div></div>
+      <div class="feat"><div class="feat-icon">🔄</div><h3>Live Price Sync</h3><p>RackUp logs into your store accounts and pulls your personalized prices, sales, and digital coupons in real time.</p></div>
+      <div class="feat"><div class="feat-icon">📊</div><h3>Full Compare Matrix</h3><p>Every item × every store — brand, size, regular price, sale price, after coupon, after rewards. True apples-to-apples.</p></div>
+      <div class="feat"><div class="feat-icon">📸</div><h3>Receipt Scanner</h3><p>Snap a receipt. AI reads the merchant, items, total, and date. Full spending history with rewards submission reminders.</p></div>
+      <div class="feat"><div class="feat-icon">🍔</div><h3>Restaurant Rewards</h3><p>McDonald's, Starbucks, Chick-fil-A, Subway and more — all points and current promos in one place.</p></div>
+      <div class="feat"><div class="feat-icon">🔒</div><h3>Private by Design</h3><p>All credentials stored encrypted locally on your device. Nothing uploaded to any server. Your data never leaves.</p></div>
+      <div class="feat"><div class="feat-icon">📰</div><h3>Weekly Ads + Flipp</h3><p>Pulls weekly sale prices from all major grocery stores via Flipp integration layered on top of connected accounts.</p></div>
+      <div class="feat"><div class="feat-icon">🔔</div><h3>End-of-Day Summary</h3><p>Daily push notification listing all receipts pending rewards submission and exactly which programs to submit each to.</p></div>
+      <div class="feat"><div class="feat-icon">🏷️</div><h3>Coupon Stacking</h3><p>Automatically stacks digital coupons, store rewards, and app promos to show your true lowest final price.</p></div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     APP SCREEN
-══════════════════════════════════════ -->
+<!-- ══ APP ══ -->
 <div id="screen-app" class="screen">
   <div class="app-layout">
-
-    <!-- Sidebar -->
     <div class="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Main</div>
-        <div class="sidebar-item active" onclick="switchTab('dashboard',this)">
-          <span class="si-icon">⚡</span> Dashboard
-        </div>
-        <div class="sidebar-item" onclick="switchTab('list',this)">
-          <span class="si-icon">📋</span> Grocery List
-          <span class="si-badge">8</span>
-        </div>
-        <div class="sidebar-item" onclick="switchTab('compare',this)">
-          <span class="si-icon">📊</span> Price Compare
-        </div>
-        <div class="sidebar-item" onclick="switchTab('optimizer',this)">
-          <span class="si-icon">🧺</span> Basket Optimizer
-        </div>
+      <div class="sb-sect">
+        <div class="sb-label">Main</div>
+        <div class="sb-item on" id="sb-dashboard" onclick="tab('dashboard',this)"><span class="sb-icon">⚡</span>Dashboard</div>
+        <div class="sb-item" id="sb-list" onclick="tab('list',this)"><span class="sb-icon">📋</span>Grocery List<span class="sb-badge" id="badge-list" style="display:none">0</span></div>
+        <div class="sb-item" id="sb-compare" onclick="tab('compare',this)"><span class="sb-icon">📊</span>Price Compare</div>
+        <div class="sb-item" id="sb-optimizer" onclick="tab('optimizer',this)"><span class="sb-icon">🧺</span>Basket Optimizer</div>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">Savings</div>
-        <div class="sidebar-item" onclick="switchTab('receipts',this)">
-          <span class="si-icon">📸</span> Receipt Scanner
-          <span class="si-badge">2</span>
-        </div>
-        <div class="sidebar-item" onclick="switchTab('rewards',this)">
-          <span class="si-icon">🏆</span> Rewards
-        </div>
-        <div class="sidebar-item" onclick="switchTab('promos',this)">
-          <span class="si-icon">🏷️</span> App Promos
-        </div>
-        <div class="sidebar-item" onclick="switchTab('ads',this)">
-          <span class="si-icon">📰</span> Weekly Ads
-        </div>
+      <div class="sb-sect">
+        <div class="sb-label">Savings</div>
+        <div class="sb-item" id="sb-receipts" onclick="tab('receipts',this)"><span class="sb-icon">📸</span>Receipt Scanner<span class="sb-badge" id="badge-receipts" style="display:none">0</span></div>
+        <div class="sb-item" id="sb-rewards" onclick="tab('rewards',this)"><span class="sb-icon">🏆</span>Rewards</div>
+        <div class="sb-item" id="sb-promos" onclick="tab('promos',this)"><span class="sb-icon">🏷️</span>App Promos</div>
+        <div class="sb-item" id="sb-ads" onclick="tab('ads',this)"><span class="sb-icon">📰</span>Weekly Ads</div>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">Settings</div>
-        <div class="sidebar-item" onclick="switchTab('stores',this)">
-          <span class="si-icon">🔗</span> Stores
-        </div>
-        <div class="sidebar-item" onclick="showScreen('pricing')">
-          <span class="si-icon">💳</span> Subscription
-        </div>
+      <div class="sb-sect">
+        <div class="sb-label">Settings</div>
+        <div class="sb-item" id="sb-stores" onclick="tab('stores',this)"><span class="sb-icon">🔗</span>Stores<span class="sb-badge" id="badge-stores">0</span></div>
+        <div class="sb-item" onclick="go('pricing')"><span class="sb-icon">💳</span>Subscription</div>
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="app-main">
 
       <!-- DASHBOARD -->
-      <div id="tab-dashboard" class="app-tab active">
-        <div class="notif-bar">
-          🔔 <strong>2 receipts</strong> pending rewards submission — Kroger + McDonald's. <strong>Submit now to earn points →</strong>
-        </div>
-        <div class="page-title">DASH<span>BOARD</span></div>
-        <div class="page-sub">LAST SYNCED 4 MIN AGO · 5 STORES CONNECTED</div>
-
+      <div id="tab-dashboard" class="app-tab on">
+        <div class="pg-title">DASH<span>BOARD</span></div>
+        <div class="pg-sub" id="dash-sub">0 STORES CONNECTED</div>
+        <div id="dash-notif" style="display:none"></div>
         <div class="dash-row">
-          <div class="stat-card">
-            <div class="stat-val">$31.44</div>
-            <div class="stat-label">Saved This Week</div>
-            <div class="stat-sub">↑ $8.20 vs last week</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-val">$214</div>
-            <div class="stat-label">Saved This Month</div>
-            <div class="stat-sub">Across 5 stores</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-val">2,840</div>
-            <div class="stat-label">Total Reward Points</div>
-            <div class="stat-sub">4 programs active</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-val">8</div>
-            <div class="stat-label">Items in List</div>
-            <div class="stat-sub">Optimizer ready</div>
-          </div>
+          <div class="stat"><div class="stat-val" id="d-saved">$0.00</div><div class="stat-lbl">Saved This Week</div><div class="stat-sub" id="d-stores-ct">Connect stores to start</div></div>
+          <div class="stat"><div class="stat-val" id="d-items">0</div><div class="stat-lbl">Items in List</div><div class="stat-sub" id="d-items-sub">Add items to get started</div></div>
+          <div class="stat"><div class="stat-val" id="d-receipts">0</div><div class="stat-lbl">Receipts Scanned</div><div class="stat-sub" id="d-pending">None pending</div></div>
+          <div class="stat"><div class="stat-val" id="d-stores">0</div><div class="stat-lbl">Stores Connected</div><div class="stat-sub" id="d-stores-sub">Connect to enable sync</div></div>
         </div>
-
         <div class="panel">
-          <div class="panel-header">
-            <h3>Best Deals Right Now</h3>
-            <button class="panel-action" onclick="switchTabDirect('compare')">COMPARE ALL →</button>
-          </div>
-          <div class="panel-body">
-            <div class="list-row">
-              <div class="lr-icon">🥛</div>
-              <div class="lr-name">Whole Milk, 1 Gallon</div>
-              <div class="lr-detail">Kroger — after coupon</div>
-              <div class="lr-price">$2.99</div>
-              <div class="lr-best">BEST</div>
-            </div>
-            <div class="list-row">
-              <div class="lr-icon">🍞</div>
-              <div class="lr-name">Dave's Killer Bread</div>
-              <div class="lr-detail">Albertsons — sale</div>
-              <div class="lr-price">$3.49</div>
-              <div class="lr-best">BEST</div>
-            </div>
-            <div class="list-row">
-              <div class="lr-icon">🥚</div>
-              <div class="lr-name">Eggs, 1 Dozen Large</div>
-              <div class="lr-detail">Walmart — regular</div>
-              <div class="lr-price">$2.18</div>
-              <div class="lr-best">BEST</div>
-            </div>
-            <div class="list-row">
-              <div class="lr-icon">🧀</div>
-              <div class="lr-name">Shredded Cheddar 16oz</div>
-              <div class="lr-detail">Safeway — digital coupon</div>
-              <div class="lr-price">$3.79</div>
-              <div class="lr-best">BEST</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Optimizer Recommendation</h3>
-            <button class="panel-action" onclick="switchTabDirect('optimizer')">FULL REPORT →</button>
-          </div>
-          <div class="panel-body">
-            <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-              <div>
-                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">SPLIT YOUR CART &amp; SAVE</div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--lime);line-height:1">$14.72</div>
-                <div style="font-size:11px;color:var(--text-dim)">vs buying everything at Kroger</div>
-              </div>
-              <div style="flex:1;min-width:200px">
-                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">RECOMMENDED SPLIT</div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap">
-                  <div style="background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:11px">
-                    <div style="color:var(--text);font-weight:600">Walmart</div>
-                    <div style="color:var(--text-muted)">4 items · $18.42</div>
-                  </div>
-                  <div style="background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:11px">
-                    <div style="color:var(--text);font-weight:600">Kroger</div>
-                    <div style="color:var(--text-muted)">3 items · $12.88</div>
-                  </div>
-                  <div style="background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:11px">
-                    <div style="color:var(--text);font-weight:600">Albertsons</div>
-                    <div style="color:var(--text-muted)">1 item · $3.49</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="ph"><h3>Getting Started</h3></div>
+          <div class="pb" id="dash-steps">
+            <div class="lr"><div style="width:24px;height:24px;border-radius:50%;background:var(--lime);color:var(--black);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div><div class="lr-name">Connect your grocery stores</div><button class="pa" onclick="tab('stores',document.getElementById('sb-stores'))">CONNECT →</button></div>
+            <div class="lr"><div style="width:24px;height:24px;border-radius:50%;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--muted)">2</div><div class="lr-name">Build your grocery list</div><button class="pa" onclick="tab('list',document.getElementById('sb-list'))">ADD ITEMS →</button></div>
+            <div class="lr" style="border-bottom:none"><div style="width:24px;height:24px;border-radius:50%;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--muted)">3</div><div class="lr-name">Run the Basket Optimizer</div><button class="pa" onclick="tab('optimizer',document.getElementById('sb-optimizer'))">OPTIMIZE →</button></div>
           </div>
         </div>
       </div>
 
       <!-- GROCERY LIST -->
       <div id="tab-list" class="app-tab">
-        <div class="page-title">GROCERY <span>LIST</span></div>
-        <div class="page-sub">8 ITEMS · PRICES SYNCED ACROSS 5 STORES</div>
-        <div class="list-add-row">
-          <input type="text" id="newItem" placeholder="Add item... (or scan barcode 📷)" onkeydown="if(event.key==='Enter')addItem()">
+        <div class="pg-title">GROCERY <span>LIST</span></div>
+        <div class="pg-sub" id="list-sub">0 ITEMS</div>
+        <div class="add-row">
+          <input type="text" id="new-item" placeholder="Item name..." onkeydown="if(event.key==='Enter')addItem()">
           <button onclick="addItem()">ADD</button>
         </div>
-        <div id="groceryList">
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Whole Milk 1 Gallon</div><div class="gi-qty">×1</div><div class="gi-best">$2.99</div><div class="gi-store">Kroger</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Dave's Killer Bread</div><div class="gi-qty">×1</div><div class="gi-best">$3.49</div><div class="gi-store">Albertsons</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Eggs Large 1 Dozen</div><div class="gi-qty">×2</div><div class="gi-best">$2.18</div><div class="gi-store">Walmart</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Shredded Cheddar 16oz</div><div class="gi-qty">×1</div><div class="gi-best">$3.79</div><div class="gi-store">Safeway</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Chicken Breast 2lb</div><div class="gi-qty">×1</div><div class="gi-best">$7.98</div><div class="gi-store">Walmart</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Roma Tomatoes</div><div class="gi-qty">×4</div><div class="gi-best">$0.88/lb</div><div class="gi-store">Kroger</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Orange Juice 52oz</div><div class="gi-qty">×1</div><div class="gi-best">$3.99</div><div class="gi-store">Albertsons</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Greek Yogurt 32oz</div><div class="gi-qty">×1</div><div class="gi-best">$4.49</div><div class="gi-store">Kroger</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
-        </div>
+        <div id="grocery-list"></div>
       </div>
 
       <!-- PRICE COMPARE -->
       <div id="tab-compare" class="app-tab">
-        <div class="page-title">PRICE <span>COMPARE</span></div>
-        <div class="page-sub">FULL MATRIX ACROSS ALL CONNECTED STORES</div>
-
-        <div class="pill-tabs">
-          <div class="pill-tab active">Whole Milk 1 Gal</div>
-          <div class="pill-tab">Eggs 1 Dz</div>
-          <div class="pill-tab">Bread</div>
-          <div class="pill-tab">Cheddar 16oz</div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Whole Milk — 1 Gallon — All Stores</h3>
-          </div>
-          <div class="panel-body" style="overflow-x:auto">
-            <table class="compare-table">
-              <thead>
-                <tr>
-                  <th>Store</th>
-                  <th>Brand</th>
-                  <th>Regular</th>
-                  <th>Sale</th>
-                  <th>After Coupon</th>
-                  <th>After Rewards</th>
-                  <th>Final Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="winner">
-                  <td class="store-name">🏪 Kroger</td>
-                  <td>Kroger Brand</td>
-                  <td class="strikethrough">$4.29</td>
-                  <td>$3.49</td>
-                  <td>$2.99</td>
-                  <td>$2.99</td>
-                  <td class="best-price">$2.99 ✓</td>
-                </tr>
-                <tr>
-                  <td class="store-name">🏪 Walmart</td>
-                  <td>Great Value</td>
-                  <td>$3.78</td>
-                  <td>—</td>
-                  <td>$3.78</td>
-                  <td>$3.78</td>
-                  <td>$3.78</td>
-                </tr>
-                <tr>
-                  <td class="store-name">🏪 Albertsons</td>
-                  <td>Lucerne</td>
-                  <td class="strikethrough">$4.99</td>
-                  <td>$3.99</td>
-                  <td>$3.99</td>
-                  <td>$3.74</td>
-                  <td>$3.74</td>
-                </tr>
-                <tr>
-                  <td class="store-name">🏪 Safeway</td>
-                  <td>O Organics</td>
-                  <td>$5.49</td>
-                  <td>—</td>
-                  <td>$4.99</td>
-                  <td>$4.99</td>
-                  <td>$4.99</td>
-                </tr>
-                <tr>
-                  <td class="store-name">🏪 Target</td>
-                  <td>Good &amp; Gather</td>
-                  <td>$4.19</td>
-                  <td>—</td>
-                  <td>$4.19</td>
-                  <td>$3.98</td>
-                  <td>$3.98</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--lime);padding:8px 4px">✓ Best price: Kroger at $2.99 — saves $0.99 vs Walmart, $1.00 vs Albertsons</div>
+        <div class="pg-title">PRICE <span>COMPARE</span></div>
+        <div class="pg-sub">FULL MATRIX ACROSS CONNECTED STORES</div>
+        <div id="compare-body"></div>
       </div>
 
       <!-- BASKET OPTIMIZER -->
       <div id="tab-optimizer" class="app-tab">
-        <div class="page-title">BASKET <span>OPTIMIZER</span></div>
-        <div class="page-sub">8 ITEMS · ANALYZING 5 STORES</div>
-
-        <div class="optimizer-result">
-          <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:8px">TOTAL SAVINGS IF YOU SPLIT YOUR CART</div>
-          <div class="savings-big">$14.72</div>
-          <div style="font-size:12px;color:var(--text-dim)">vs buying everything at a single store (cheapest single-store: Kroger $49.80)</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);margin-top:4px">OPTIMIZED TOTAL: $35.08</div>
-
-          <div class="optimizer-store-split">
-            <div class="store-bucket">
-              <h4>🏪 Walmart — 3 items</h4>
-              <span class="item-chip">Eggs $2.18</span>
-              <span class="item-chip">Chicken $7.98</span>
-              <span class="item-chip">OJ $3.69</span>
-              <div class="bucket-total">$13.85</div>
-            </div>
-            <div class="store-bucket">
-              <h4>🏪 Kroger — 3 items</h4>
-              <span class="item-chip">Milk $2.99</span>
-              <span class="item-chip">Tomatoes $1.76</span>
-              <span class="item-chip">Greek Yogurt $4.49</span>
-              <div class="bucket-total">$9.24</div>
-            </div>
-            <div class="store-bucket">
-              <h4>🏪 Albertsons — 2 items</h4>
-              <span class="item-chip">Bread $3.49</span>
-              <span class="item-chip">Cheddar $4.50</span>
-              <div class="bucket-total">$7.99</div>
-            </div>
-          </div>
-
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-            <div style="font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px">ITEM-BY-ITEM ROUTING</div>
-            <div class="list-row"><div class="lr-icon">🥛</div><div class="lr-name">Whole Milk</div><div class="lr-detail">→ Kroger</div><div class="lr-price">$2.99</div></div>
-            <div class="list-row"><div class="lr-icon">🍞</div><div class="lr-name">Dave's Killer Bread</div><div class="lr-detail">→ Albertsons</div><div class="lr-price">$3.49</div></div>
-            <div class="list-row"><div class="lr-icon">🥚</div><div class="lr-name">Eggs 1 Dozen ×2</div><div class="lr-detail">→ Walmart</div><div class="lr-price">$4.36</div></div>
-            <div class="list-row"><div class="lr-icon">🧀</div><div class="lr-name">Cheddar 16oz</div><div class="lr-detail">→ Albertsons</div><div class="lr-price">$4.50</div></div>
-            <div class="list-row"><div class="lr-icon">🍗</div><div class="lr-name">Chicken Breast 2lb</div><div class="lr-detail">→ Walmart</div><div class="lr-price">$7.98</div></div>
-            <div class="list-row"><div class="lr-icon">🍅</div><div class="lr-name">Roma Tomatoes</div><div class="lr-detail">→ Kroger</div><div class="lr-price">$1.76</div></div>
-            <div class="list-row"><div class="lr-icon">🍊</div><div class="lr-name">Orange Juice 52oz</div><div class="lr-detail">→ Walmart</div><div class="lr-price">$3.69</div></div>
-            <div class="list-row"><div class="lr-icon">🫙</div><div class="lr-name">Greek Yogurt 32oz</div><div class="lr-detail">→ Kroger</div><div class="lr-price">$4.49</div></div>
-          </div>
-        </div>
+        <div class="pg-title">BASKET <span>OPTIMIZER</span></div>
+        <div class="pg-sub">CHEAPEST SPLIT ACROSS ALL YOUR STORES</div>
+        <div id="optimizer-body"></div>
       </div>
 
       <!-- RECEIPTS -->
       <div id="tab-receipts" class="app-tab">
-        <div class="page-title">RECEIPT <span>SCANNER</span></div>
-        <div class="page-sub">AI-POWERED · LOCAL PROCESSING ONLY</div>
-
-        <div class="receipt-scan-area" onclick="alert('Receipt scanning requires camera access on mobile device.')">
-          <div class="rs-icon">📷</div>
+        <div class="pg-title">RECEIPT <span>SCANNER</span></div>
+        <div class="pg-sub">AI-POWERED · LOCAL PROCESSING ONLY</div>
+        <div class="scan-area" onclick="triggerReceiptScan()">
+          <div class="sa-icon">📷</div>
           <p><strong>Tap to scan a receipt</strong></p>
           <p>AI reads merchant, items, total, and date</p>
         </div>
-
-        <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:12px">RECENT RECEIPTS — 2 PENDING SUBMISSION</div>
-
-        <div class="receipt-card">
-          <div>
-            <div class="rc-store">Kroger</div>
-            <div class="rc-date">Jun 5, 2026 · 14 items</div>
-            <div class="rc-tag" style="margin-top:6px">⚠️ SUBMIT TO KROGER PLUS</div>
-          </div>
-          <div class="rc-total">$34.12</div>
-        </div>
-        <div class="receipt-card">
-          <div>
-            <div class="rc-store">McDonald's</div>
-            <div class="rc-date">Jun 5, 2026 · 3 items</div>
-            <div class="rc-tag" style="margin-top:6px">⚠️ SUBMIT TO MCDONALDS APP</div>
-          </div>
-          <div class="rc-total">$12.47</div>
-        </div>
-        <div class="receipt-card">
-          <div>
-            <div class="rc-store">Walmart</div>
-            <div class="rc-date">Jun 3, 2026 · 22 items</div>
-            <div style="font-size:9px;color:var(--lime);margin-top:6px;letter-spacing:1px">✓ SUBMITTED</div>
-          </div>
-          <div class="rc-total">$87.63</div>
-        </div>
-        <div class="receipt-card">
-          <div>
-            <div class="rc-store">Starbucks</div>
-            <div class="rc-date">Jun 2, 2026 · 2 items</div>
-            <div style="font-size:9px;color:var(--lime);margin-top:6px;letter-spacing:1px">✓ SUBMITTED</div>
-          </div>
-          <div class="rc-total">$11.80</div>
-        </div>
+        <input type="file" id="receipt-file" accept="image/*" style="display:none" onchange="processReceipt(this)">
+        <div id="receipt-list"></div>
       </div>
 
       <!-- REWARDS -->
       <div id="tab-rewards" class="app-tab">
-        <div class="page-title">REWARDS <span>TRACKER</span></div>
-        <div class="page-sub">GROCERY + RESTAURANT PROGRAMS</div>
-
-        <div class="reward-card">
-          <div class="rw-top">
-            <div class="rw-logo">🏪</div>
-            <div><div class="rw-brand">Kroger Plus</div><div style="font-size:10px;color:var(--text-muted)">Fuel points expire Jul 31</div></div>
-            <div class="rw-pts">840 <span>pts</span></div>
-          </div>
-          <div>
-            <span class="promo-chip">🔥 3x fuel points this week</span>
-            <span class="promo-chip">FREE Friday item available</span>
-          </div>
-        </div>
-
-        <div class="reward-card">
-          <div class="rw-top">
-            <div class="rw-logo">☕</div>
-            <div><div class="rw-brand">Starbucks Rewards</div><div style="font-size:10px;color:var(--text-muted)">Gold Star member</div></div>
-            <div class="rw-pts">320 <span>stars</span></div>
-          </div>
-          <div>
-            <span class="promo-chip">Double stars Mon-Thu</span>
-            <span class="promo-chip">Free drink at 400 stars</span>
-          </div>
-        </div>
-
-        <div class="reward-card">
-          <div class="rw-top">
-            <div class="rw-logo">🍔</div>
-            <div><div class="rw-brand">McDonald's</div><div style="font-size:10px;color:var(--text-muted)">MyMcDonald's Rewards</div></div>
-            <div class="rw-pts">1,100 <span>pts</span></div>
-          </div>
-          <div>
-            <span class="promo-chip">BOGO McDouble today</span>
-            <span class="promo-chip">Free fries at 1,500pts</span>
-          </div>
-        </div>
-
-        <div class="reward-card">
-          <div class="rw-top">
-            <div class="rw-logo">🐮</div>
-            <div><div class="rw-brand">Chick-fil-A One</div><div style="font-size:10px;color:var(--text-muted)">Silver member</div></div>
-            <div class="rw-pts">580 <span>pts</span></div>
-          </div>
-          <div>
-            <span class="promo-chip">Spicy Deluxe deal Sat</span>
-          </div>
-        </div>
+        <div class="pg-title">REWARDS <span>TRACKER</span></div>
+        <div class="pg-sub">GROCERY + RESTAURANT PROGRAMS</div>
+        <div id="rewards-body"></div>
       </div>
 
       <!-- PROMOS -->
       <div id="tab-promos" class="app-tab">
-        <div class="page-title">APP <span>PROMOS</span></div>
-        <div class="page-sub">CURRENT DEALS FROM ALL CONNECTED APPS</div>
-
-        <div class="panel">
-          <div class="panel-header"><h3>🏪 Kroger — 4 Active Promos</h3></div>
-          <div class="panel-body">
-            <div class="list-row"><div class="lr-name">3x Fuel Points on groceries</div><div class="lr-detail">Expires Sun</div></div>
-            <div class="list-row"><div class="lr-name">FREE Chobani yogurt — digital coupon</div><div class="lr-detail">Limit 1</div></div>
-            <div class="list-row"><div class="lr-name">$5 off $30 with Boost membership</div><div class="lr-detail">Online only</div></div>
-            <div class="list-row"><div class="lr-name">Buy 2 get 1 free cereal</div><div class="lr-detail">Select brands</div></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header"><h3>🏪 Albertsons — 2 Active Promos</h3></div>
-          <div class="panel-body">
-            <div class="list-row"><div class="lr-name">$10 off $50 — app exclusive</div><div class="lr-detail">Clip coupon</div></div>
-            <div class="list-row"><div class="lr-name">Double Gas Rewards weekend</div><div class="lr-detail">Sat-Sun only</div></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header"><h3>🍔 McDonald's — 3 Active Promos</h3></div>
-          <div class="panel-body">
-            <div class="list-row"><div class="lr-name">BOGO McDouble — today only</div><div class="lr-detail">App order</div></div>
-            <div class="list-row"><div class="lr-name">Free medium fries with $1+ purchase</div><div class="lr-detail">Mon-Fri</div></div>
-            <div class="list-row"><div class="lr-name">$1 any size drink</div><div class="lr-detail">Ongoing</div></div>
-          </div>
-        </div>
+        <div class="pg-title">APP <span>PROMOS</span></div>
+        <div class="pg-sub">CURRENT DEALS FROM CONNECTED APPS</div>
+        <div id="promos-body"></div>
       </div>
 
       <!-- WEEKLY ADS -->
       <div id="tab-ads" class="app-tab">
-        <div class="page-title">WEEKLY <span>ADS</span></div>
-        <div class="page-sub">FLIPP INTEGRATION · UPDATED WEEKLY</div>
-
-        <div class="panel">
-          <div class="panel-header"><h3>🏪 Kroger — This Week's Best</h3></div>
-          <div class="panel-body">
-            <div class="list-row"><div class="lr-icon">🥩</div><div class="lr-name">80/20 Ground Beef 3lb</div><div class="lr-price">$9.99</div></div>
-            <div class="list-row"><div class="lr-icon">🍗</div><div class="lr-name">Boneless Chicken Thighs 3lb</div><div class="lr-price">$6.99</div></div>
-            <div class="list-row"><div class="lr-icon">🥤</div><div class="lr-name">Pepsi 12-pack cans</div><div class="lr-price">$4.99</div></div>
-            <div class="list-row"><div class="lr-icon">🫒</div><div class="lr-name">EVOO 17oz</div><div class="lr-price">$5.49</div></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header"><h3>🏪 Albertsons — This Week's Best</h3></div>
-          <div class="panel-body">
-            <div class="list-row"><div class="lr-icon">🍓</div><div class="lr-name">Strawberries 1lb</div><div class="lr-price">$1.99</div></div>
-            <div class="list-row"><div class="lr-icon">🥬</div><div class="lr-name">Romaine Hearts 3-pack</div><div class="lr-price">$2.49</div></div>
-            <div class="list-row"><div class="lr-icon">🧈</div><div class="lr-name">Land O' Lakes Butter 2lb</div><div class="lr-price">$6.99</div></div>
-          </div>
-        </div>
+        <div class="pg-title">WEEKLY <span>ADS</span></div>
+        <div class="pg-sub">FLIPP INTEGRATION · UPDATED WEEKLY</div>
+        <div id="ads-body"></div>
       </div>
 
       <!-- STORES -->
       <div id="tab-stores" class="app-tab">
-        <div class="page-title">STORE <span>CONNECTIONS</span></div>
-        <div class="page-sub">CREDENTIALS STORED ENCRYPTED ON DEVICE ONLY</div>
-
-        <div class="notif-bar" style="margin-bottom:24px">
-          🔒 <strong>Zero server storage.</strong> Your login credentials never leave your device. All syncing happens locally.
-        </div>
-
-        <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:12px">GROCERY STORES</div>
-        <div class="store-grid" style="margin-bottom:28px">
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Kroger</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Walmart</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Albertsons</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Safeway</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🎯</div><div class="st-name">Target</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile" onclick="alert('Connect Publix — enter your Publix account credentials to sync prices and coupons.')"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Publix</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Aldi')"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Aldi</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Costco')"><div class="st-dot"></div><div class="st-emoji">🏬</div><div class="st-name">Costco</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Trader Joe&apos;s')"><div class="st-dot"></div><div class="st-emoji">🌺</div><div class="st-name">Trader Joe's</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Whole Foods')"><div class="st-dot"></div><div class="st-emoji">🌿</div><div class="st-name">Whole Foods</div><div class="st-status">TAP TO CONNECT</div></div>
-        </div>
-
-        <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:12px">RESTAURANTS</div>
-        <div class="store-grid">
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🍔</div><div class="st-name">McDonald's</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">☕</div><div class="st-name">Starbucks</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🐮</div><div class="st-name">Chick-fil-A</div><div class="st-status">CONNECTED</div></div>
-          <div class="store-tile" onclick="alert('Connect Subway')"><div class="st-dot"></div><div class="st-emoji">🥖</div><div class="st-name">Subway</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Taco Bell')"><div class="st-dot"></div><div class="st-emoji">🌮</div><div class="st-name">Taco Bell</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Chipotle')"><div class="st-dot"></div><div class="st-emoji">🫔</div><div class="st-name">Chipotle</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Panera')"><div class="st-dot"></div><div class="st-emoji">🥐</div><div class="st-name">Panera</div><div class="st-status">TAP TO CONNECT</div></div>
-          <div class="store-tile" onclick="alert('Connect Burger King')"><div class="st-dot"></div><div class="st-emoji">👑</div><div class="st-name">Burger King</div><div class="st-status">TAP TO CONNECT</div></div>
-        </div>
+        <div class="pg-title">STORE <span>CONNECTIONS</span></div>
+        <div class="pg-sub">CREDENTIALS ENCRYPTED ON DEVICE ONLY</div>
+        <div class="notif">🔒 <strong>Zero server storage.</strong> Your login credentials never leave your device. All syncing happens locally.</div>
+        <div style="font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:12px">GROCERY STORES</div>
+        <div class="store-grid" id="grocery-stores"></div>
+        <div style="font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:12px">RESTAURANTS</div>
+        <div class="store-grid" id="restaurant-stores"></div>
       </div>
 
-    </div><!-- /app-main -->
-  </div><!-- /app-layout -->
-</div><!-- /screen-app -->
+    </div>
+  </div>
+</div>
 
-<!-- ══════════════════════════════════════
-     PRICING SCREEN
-══════════════════════════════════════ -->
+<!-- ══ PRICING ══ -->
 <div id="screen-pricing" class="screen">
   <div style="max-width:900px;margin:0 auto;padding:60px 24px">
     <div style="text-align:center;margin-bottom:48px">
-      <div class="section-label">Pricing</div>
-      <div class="section-title">SIMPLE.<br>TRANSPARENT.<br>WORTH IT.</div>
-      <p style="font-size:13px;color:var(--text-dim);max-width:500px;margin:0 auto">
-        Start free. No card during beta. Beta users locked in free forever.
-      </p>
+      <div class="sect-label">Pricing</div>
+      <div class="sect-title">SIMPLE.<br>TRANSPARENT.<br>WORTH IT.</div>
+      <p style="font-size:13px;color:var(--dim);max-width:500px;margin:0 auto">Start free. No card during beta. Beta users locked in free forever.</p>
     </div>
-
-    <div class="beta-banner" style="margin-bottom:40px">
-      <div class="beta-banner-left">
-        <div class="beta-icon">⏱️</div>
-        <div>
-          <h3>BETA — 90 DAYS COMPLETELY FREE</h3>
-          <p>Join now. No credit card. Full access. Grandfathered free forever after beta ends.</p>
+    <div class="banner" style="padding:0;margin-bottom:40px">
+      <div class="banner-inner">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-size:28px">⏱️</div>
+          <div><h3>BETA — 90 DAYS COMPLETELY FREE</h3><p>Join now. No credit card. Full access. Grandfathered free forever after beta ends.</p></div>
         </div>
+        <button class="btn-lime" onclick="go('app')">JOIN BETA FREE →</button>
       </div>
-      <button class="btn-primary" onclick="showScreen('app')">JOIN BETA FREE →</button>
     </div>
-
-    <div class="pricing-grid">
-      <div class="price-card">
+    <div class="price-grid">
+      <div class="pc">
         <div class="price-tier">Free Tier</div>
         <div class="price-tag">$0<span>/mo</span></div>
-        <ul class="price-features">
+        <ul class="price-feats">
           <li>Grocery list builder</li>
           <li>Manual price entry</li>
           <li>2 store connections</li>
           <li>Basic price compare</li>
-          <li class="locked">Live price sync</li>
-          <li class="locked">Basket optimizer</li>
-          <li class="locked">Coupon stacking</li>
-          <li class="locked">Restaurant rewards</li>
-          <li class="locked">Receipt scanner</li>
-          <li class="locked">Weekly ads</li>
+          <li class="no">Live price sync</li>
+          <li class="no">Basket optimizer</li>
+          <li class="no">Coupon stacking</li>
+          <li class="no">Restaurant rewards</li>
+          <li class="no">Receipt scanner</li>
+          <li class="no">Weekly ads</li>
         </ul>
-        <button class="price-btn price-btn-outline" onclick="showScreen('app')">START FREE</button>
+        <button class="pbtn pbtn-out" onclick="go('app')">START FREE</button>
       </div>
-      <div class="price-card featured">
+      <div class="pc feat">
         <div class="price-tier">Monthly</div>
         <div class="price-tag">$3<span>.99/mo</span></div>
-        <ul class="price-features">
+        <ul class="price-feats">
           <li>Everything in Free</li>
           <li>Unlimited store connections</li>
           <li>Live price sync</li>
@@ -1195,57 +469,564 @@
           <li>Weekly ads (Flipp)</li>
           <li>App promo tracker</li>
         </ul>
-        <button class="price-btn price-btn-lime" onclick="alert('Stripe — monthly subscription $3.99/mo')">START $3.99/MO</button>
+        <button class="pbtn pbtn-lime" onclick="alert('Stripe subscription — coming soon')">START $3.99/MO</button>
       </div>
-      <div class="price-card">
+      <div class="pc">
         <div class="price-tier">Annual</div>
         <div class="price-tag">$29<span>.99/yr</span></div>
-        <ul class="price-features">
+        <ul class="price-feats">
           <li>Everything in Monthly</li>
           <li>Save $18 vs monthly</li>
           <li>Priority sync speed</li>
           <li>Early feature access</li>
         </ul>
-        <button class="price-btn price-btn-lime" style="margin-top:auto" onclick="alert('Stripe — annual subscription $29.99/yr')">START $29.99/YR</button>
+        <button class="pbtn pbtn-lime" onclick="alert('Stripe annual — coming soon')">START $29.99/YR</button>
       </div>
     </div>
-
-    <div class="savings-note">Annual plan saves <strong>$18/year</strong> vs monthly billing.</div>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:-16px">Annual saves <strong style="color:var(--lime)">$18/year</strong> vs monthly.</p>
+  </div>
+</div>
 
 <script>
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + id).classList.add('active');
-    window.scrollTo(0,0);
-  }
+// ── STATE ──────────────────────────────────────────
+const S = {
+  list: [],       // {id, name, qty, checked}
+  stores: {},     // {storeKey: {name, emoji, type, connected, user}}
+  receipts: [],   // {id, store, date, total, pending}
+  rewards: {}     // from connected restaurant stores
+};
 
-  function switchTab(id, el) {
-    document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-    document.getElementById('tab-' + id).classList.add('active');
-    el.classList.add('active');
-  }
+const GROCERY_STORES = [
+  {key:'kroger',name:'Kroger',emoji:'🏪'},
+  {key:'walmart',name:'Walmart',emoji:'🏪'},
+  {key:'albertsons',name:'Albertsons',emoji:'🏪'},
+  {key:'safeway',name:'Safeway',emoji:'🏪'},
+  {key:'target',name:'Target',emoji:'🎯'},
+  {key:'publix',name:'Publix',emoji:'🏪'},
+  {key:'aldi',name:'Aldi',emoji:'🏪'},
+  {key:'costco',name:'Costco',emoji:'🏬'},
+  {key:'traderjoes',name:"Trader Joe's",emoji:'🌺'},
+  {key:'wholefoods',name:'Whole Foods',emoji:'🌿'}
+];
+const RESTAURANT_STORES = [
+  {key:'mcdonalds',name:"McDonald's",emoji:'🍔'},
+  {key:'starbucks',name:'Starbucks',emoji:'☕'},
+  {key:'chickfila',name:'Chick-fil-A',emoji:'🐮'},
+  {key:'subway',name:'Subway',emoji:'🥖'},
+  {key:'tacobell',name:'Taco Bell',emoji:'🌮'},
+  {key:'chipotle',name:'Chipotle',emoji:'🫔'},
+  {key:'panera',name:'Panera',emoji:'🥐'},
+  {key:'burgerking',name:'Burger King',emoji:'👑'}
+];
 
-  function switchTabDirect(id) {
-    document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-    document.getElementById('tab-' + id).classList.add('active');
-  }
+// Simulated price data (per item per store — would be live API data in prod)
+const PRICE_DB = {};
+let pendingConnectKey = null;
 
-  function addItem() {
-    const input = document.getElementById('newItem');
-    const val = input.value.trim();
-    if (!val) return;
-    const stores = ['Kroger','Walmart','Albertsons','Safeway','Target'];
-    const prices = ['$1.99','$2.49','$3.29','$4.99','$0.99','$5.49','$2.79'];
-    const store = stores[Math.floor(Math.random()*stores.length)];
-    const price = prices[Math.floor(Math.random()*prices.length)];
-    const el = document.createElement('div');
-    el.className = 'grocery-item';
-    el.innerHTML = `<input type="checkbox"><div class="gi-name">${val}</div><div class="gi-qty">×1</div><div class="gi-best">${price}</div><div class="gi-store">${store}</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button>`;
-    document.getElementById('groceryList').prepend(el);
-    input.value = '';
+// ── INIT ──────────────────────────────────────────
+function init() {
+  const saved = localStorage.getItem('rackup_state');
+  if (saved) {
+    try { Object.assign(S, JSON.parse(saved)); } catch(e){}
   }
+  renderAll();
+}
+
+function save() {
+  localStorage.setItem('rackup_state', JSON.stringify(S));
+}
+
+function renderAll() {
+  renderStores();
+  renderList();
+  renderDashboard();
+  renderCompare();
+  renderOptimizer();
+  renderReceipts();
+  renderRewards();
+  renderPromos();
+  renderAds();
+}
+
+// ── NAV ──────────────────────────────────────────
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('on'));
+  const nt = document.getElementById('ntab-'+id);
+  if(nt) nt.classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function tab(id, el) {
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+// ── STORES ──────────────────────────────────────────
+function renderStores() {
+  renderStoreGrid('grocery-stores', GROCERY_STORES);
+  renderStoreGrid('restaurant-stores', RESTAURANT_STORES);
+  const ct = Object.values(S.stores).filter(s => s.connected).length;
+  const badge = document.getElementById('badge-stores');
+  badge.textContent = ct;
+  badge.style.display = ct > 0 ? 'inline-block' : 'none';
+}
+
+function renderStoreGrid(containerId, stores) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = stores.map(st => {
+    const data = S.stores[st.key] || {};
+    const conn = !!data.connected;
+    return `<div class="st ${conn?'linked':''}" onclick="openConnectModal('${st.key}','${st.name}','${st.emoji}')">
+      <div class="st-dot"></div>
+      <div class="st-emoji">${st.emoji}</div>
+      <div class="st-name">${st.name}</div>
+      <div class="st-status">${conn ? 'CONNECTED ✓' : 'TAP TO CONNECT'}</div>
+      ${conn ? `<div style="font-size:9px;color:var(--muted)">${data.user||''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function openConnectModal(key, name, emoji) {
+  const data = S.stores[key] || {};
+  pendingConnectKey = key;
+  document.getElementById('modal-title').textContent = `${emoji} ${name}`;
+  if (data.connected) {
+    document.getElementById('modal-desc').innerHTML = `Connected as <strong style="color:var(--lime)">${data.user}</strong>.<br>Re-enter credentials to update, or <a href="#" onclick="disconnectStore('${key}');return false;" style="color:var(--red)">disconnect</a>.`;
+  } else {
+    document.getElementById('modal-desc').textContent = `Enter your ${name} account credentials. Stored encrypted on your device only — never uploaded.`;
+  }
+  document.getElementById('modal-user').value = data.user || '';
+  document.getElementById('modal-pass').value = '';
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function connectStore() {
+  const user = document.getElementById('modal-user').value.trim();
+  const pass = document.getElementById('modal-pass').value;
+  if (!user || !pass) { alert('Enter both username and password.'); return; }
+  S.stores[pendingConnectKey] = { connected: true, user, passHash: btoa(pass) };
+  save();
+  closeModal();
+  renderAll();
+}
+
+function disconnectStore(key) {
+  delete S.stores[key];
+  save();
+  closeModal();
+  renderAll();
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+  pendingConnectKey = null;
+}
+
+// ── GROCERY LIST ──────────────────────────────────────────
+function addItem() {
+  const input = document.getElementById('new-item');
+  const name = input.value.trim();
+  if (!name) return;
+  S.list.push({ id: Date.now(), name, qty: 1, checked: false });
+  input.value = '';
+  save();
+  renderAll();
+}
+
+function removeItem(id) {
+  S.list = S.list.filter(i => i.id !== id);
+  save();
+  renderAll();
+}
+
+function toggleItem(id) {
+  const item = S.list.find(i => i.id === id);
+  if (item) { item.checked = !item.checked; save(); renderList(); }
+}
+
+function changeQty(id, delta) {
+  const item = S.list.find(i => i.id === id);
+  if (item) { item.qty = Math.max(1, (item.qty||1) + delta); save(); renderAll(); }
+}
+
+function renderList() {
+  const el = document.getElementById('grocery-list');
+  const sub = document.getElementById('list-sub');
+  const badge = document.getElementById('badge-list');
+  const ct = S.list.length;
+  sub.textContent = `${ct} ITEM${ct!==1?'S':''}`;
+  badge.textContent = ct;
+  badge.style.display = ct > 0 ? 'inline-block' : 'none';
+  if (!el) return;
+  if (ct === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><p>No items yet.<br>Type an item name above and tap ADD.</p></div>`;
+    return;
+  }
+  const connectedKeys = Object.keys(S.stores).filter(k => S.stores[k].connected);
+  el.innerHTML = S.list.map(item => {
+    const prices = getSimPrices(item.name, connectedKeys);
+    const best = prices.length ? prices.reduce((a,b) => a.final < b.final ? a : b) : null;
+    return `<div class="gi ${item.checked?'style="opacity:.5"':''}">
+      <input type="checkbox" ${item.checked?'checked':''} onchange="toggleItem(${item.id})">
+      <div class="gi-name" style="${item.checked?'text-decoration:line-through;opacity:.5':''}">${item.name}</div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button style="background:var(--surface3);border:1px solid var(--border);color:var(--text);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px" onclick="changeQty(${item.id},-1)">-</button>
+        <span class="gi-qty">×${item.qty||1}</span>
+        <button style="background:var(--surface3);border:1px solid var(--border);color:var(--text);width:22px;height:22px;border-radius:3px;cursor:pointer;font-size:12px" onclick="changeQty(${item.id},1)">+</button>
+      </div>
+      ${best ? `<div class="gi-price">$${best.final.toFixed(2)}</div><div class="gi-store">${best.storeName}</div>` : `<div class="gi-price" style="color:var(--muted)">—</div><div class="gi-store" style="color:var(--muted)">no stores</div>`}
+      <button class="gi-del" onclick="removeItem(${item.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── SIMULATED PRICES (replace with live API in prod) ──────────────────────────────────────────
+function seedPrice(itemName, storeKey) {
+  const hash = (itemName + storeKey).split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  const base = 1.49 + (hash % 800) / 100;
+  const hasSale = hash % 3 === 0;
+  const hasCoupon = hash % 5 === 0;
+  const regular = parseFloat(base.toFixed(2));
+  const sale = hasSale ? parseFloat((regular * 0.8).toFixed(2)) : regular;
+  const afterCoupon = hasCoupon ? parseFloat((sale - 0.75).toFixed(2)) : sale;
+  const final = parseFloat(Math.max(0.49, afterCoupon).toFixed(2));
+  return { regular, sale: hasSale ? sale : null, afterCoupon: hasCoupon ? afterCoupon : null, final };
+}
+
+function getSimPrices(itemName, storeKeys) {
+  if (!storeKeys.length) return [];
+  const all = [...GROCERY_STORES,...RESTAURANT_STORES];
+  return storeKeys.map(k => {
+    const store = all.find(s => s.key === k);
+    const p = seedPrice(itemName, k);
+    return { storeKey: k, storeName: store ? store.name : k, ...p };
+  });
+}
+
+// ── PRICE COMPARE ──────────────────────────────────────────
+function renderCompare() {
+  const el = document.getElementById('compare-body');
+  if (!el) return;
+  const connectedKeys = Object.keys(S.stores).filter(k => S.stores[k].connected);
+  if (connectedKeys.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🔗</div><p>Connect stores first to compare prices.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('stores',document.getElementById('sb-stores'))">CONNECT STORES →</button></p></div>`;
+    return;
+  }
+  if (S.list.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><p>Add items to your grocery list first.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('list',document.getElementById('sb-list'))">ADD ITEMS →</button></p></div>`;
+    return;
+  }
+  el.innerHTML = S.list.map(item => {
+    const prices = getSimPrices(item.name, connectedKeys);
+    const best = prices.reduce((a,b) => a.final < b.final ? a : b);
+    const rows = prices.sort((a,b) => a.final - b.final).map(p => {
+      const isWinner = p.storeKey === best.storeKey;
+      return `<tr class="${isWinner?'winner':''}">
+        <td class="${isWinner?'best':''}">${isWinner?'★ ':''}${p.storeName}</td>
+        <td class="${p.sale ? 'struck' : ''}">${p.sale ? '<span class="struck">$'+p.regular.toFixed(2)+'</span>' : '$'+p.regular.toFixed(2)}</td>
+        <td>${p.sale ? '$'+p.sale.toFixed(2) : '—'}</td>
+        <td>${p.afterCoupon ? '$'+p.afterCoupon.toFixed(2) : '—'}</td>
+        <td class="${isWinner?'best':''}">${isWinner?'✓ ':''}<strong>$${p.final.toFixed(2)}</strong></td>
+      </tr>`;
+    }).join('');
+    return `<div class="panel" style="margin-bottom:16px">
+      <div class="ph"><h3>${item.name}</h3><span class="best-tag">BEST: $${best.final.toFixed(2)} @ ${best.storeName}</span></div>
+      <div class="pb" style="overflow-x:auto">
+        <table class="ctable"><thead><tr><th>Store</th><th>Regular</th><th>Sale</th><th>After Coupon</th><th>Final Price</th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── BASKET OPTIMIZER ──────────────────────────────────────────
+function renderOptimizer() {
+  const el = document.getElementById('optimizer-body');
+  if (!el) return;
+  const connectedKeys = Object.keys(S.stores).filter(k => S.stores[k].connected);
+  if (connectedKeys.length < 2) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🧺</div><p>Connect at least 2 stores to run the optimizer.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('stores',document.getElementById('sb-stores'))">CONNECT STORES →</button></p></div>`;
+    return;
+  }
+  if (S.list.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><p>Add items to your list first.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('list',document.getElementById('sb-list'))">ADD ITEMS →</button></p></div>`;
+    return;
+  }
+  const all = [...GROCERY_STORES,...RESTAURANT_STORES];
+  // Build assignment: each item → cheapest store
+  const assignments = {}; // storeKey → [{item, price}]
+  let optimizedTotal = 0;
+  const routing = S.list.map(item => {
+    const prices = getSimPrices(item.name, connectedKeys);
+    const best = prices.reduce((a,b) => a.final < b.final ? a : b);
+    if (!assignments[best.storeKey]) assignments[best.storeKey] = [];
+    assignments[best.storeKey].push({ item, price: best.final * (item.qty||1) });
+    optimizedTotal += best.final * (item.qty||1);
+    return { item, best };
+  });
+  // Single-store baseline (cheapest single store for whole list)
+  let baseline = Infinity, baselineStore = '';
+  connectedKeys.forEach(k => {
+    const total = S.list.reduce((sum, item) => {
+      const p = seedPrice(item.name, k);
+      return sum + p.final * (item.qty||1);
+    }, 0);
+    if (total < baseline) { baseline = total; baselineStore = all.find(s=>s.key===k)?.name || k; }
+  });
+  const savings = baseline - optimizedTotal;
+  const buckets = Object.keys(assignments).map(k => {
+    const store = all.find(s=>s.key===k);
+    const items = assignments[k];
+    const total = items.reduce((s,i) => s + i.price, 0);
+    return `<div class="store-bucket">
+      <h4>${store?store.emoji:'🏪'} ${store?store.name:k} — ${items.length} item${items.length!==1?'s':''}</h4>
+      ${items.map(i=>`<span class="chip">${i.item.name} $${i.price.toFixed(2)}</span>`).join('')}
+      <div class="bucket-total">$${total.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+  const rows = routing.map(r => `<div class="lr">
+    <div class="lr-name">${r.item.name}${(r.item.qty||1)>1?' ×'+r.item.qty:''}</div>
+    <div class="lr-detail">→ ${r.best.storeName}</div>
+    <div class="lr-price">$${(r.best.final*(r.item.qty||1)).toFixed(2)}</div>
+  </div>`).join('');
+  el.innerHTML = `<div class="opt-result">
+    <div style="font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:8px">TOTAL SAVINGS VS SINGLE STORE (${baselineStore})</div>
+    <div class="opt-big">$${savings.toFixed(2)}</div>
+    <div style="font-size:12px;color:var(--dim)">Optimized total: <strong style="color:var(--text)">$${optimizedTotal.toFixed(2)}</strong> vs single-store: $${baseline.toFixed(2)}</div>
+    <div class="store-split">${buckets}</div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:10px">ITEM-BY-ITEM ROUTING</div>
+      ${rows}
+    </div>
+  </div>`;
+}
+
+// ── RECEIPTS ──────────────────────────────────────────
+function triggerReceiptScan() {
+  document.getElementById('receipt-file').click();
+}
+
+function processReceipt(input) {
+  if (!input.files[0]) return;
+  const store = prompt('Store name on this receipt?') || 'Unknown Store';
+  const total = prompt('Total amount? (numbers only, e.g. 34.12)') || '0.00';
+  const receipt = {
+    id: Date.now(),
+    store,
+    date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    total: parseFloat(total)||0,
+    pending: true
+  };
+  S.receipts.unshift(receipt);
+  save();
+  renderReceipts();
+  renderDashboard();
+  input.value = '';
+}
+
+function markReceiptDone(id) {
+  const r = S.receipts.find(r => r.id === id);
+  if (r) { r.pending = false; save(); renderReceipts(); renderDashboard(); }
+}
+
+function deleteReceipt(id) {
+  S.receipts = S.receipts.filter(r => r.id !== id);
+  save();
+  renderReceipts();
+  renderDashboard();
+}
+
+function renderReceipts() {
+  const el = document.getElementById('receipt-list');
+  if (!el) return;
+  const pending = S.receipts.filter(r => r.pending).length;
+  const badge = document.getElementById('badge-receipts');
+  badge.textContent = pending;
+  badge.style.display = pending > 0 ? 'inline-block' : 'none';
+  if (S.receipts.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🧾</div><p>No receipts yet.<br>Tap the scan area above to add one.</p></div>`;
+    return;
+  }
+  el.innerHTML = S.receipts.map(r => `
+    <div class="rc">
+      <div>
+        <div class="rc-store">${r.store}</div>
+        <div class="rc-date">${r.date}</div>
+        <div style="margin-top:6px">
+          ${r.pending
+            ? `<span class="rc-pending">⚠️ SUBMIT TO REWARDS</span> <button class="pa" style="margin-left:8px;font-size:9px;padding:3px 8px" onclick="markReceiptDone(${r.id})">MARK DONE</button>`
+            : `<span class="rc-done">✓ SUBMITTED</span>`}
+        </div>
+      </div>
+      <div class="rc-total">$${r.total.toFixed(2)}</div>
+      <button class="rc-del" onclick="deleteReceipt(${r.id})">✕</button>
+    </div>`).join('');
+}
+
+// ── REWARDS ──────────────────────────────────────────
+function renderRewards() {
+  const el = document.getElementById('rewards-body');
+  if (!el) return;
+  const connRest = RESTAURANT_STORES.filter(s => S.stores[s.key]?.connected);
+  const connGroc = GROCERY_STORES.filter(s => S.stores[s.key]?.connected);
+  const all = [...connGroc,...connRest];
+  if (all.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🏆</div><p>Connect stores and restaurants to track rewards.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('stores',document.getElementById('sb-stores'))">CONNECT STORES →</button></p></div>`;
+    return;
+  }
+  const promoMap = {
+    kroger:['3x fuel points this week','FREE Friday item available'],
+    walmart:['Rollback deals this week'],
+    albertsons:['Double gas rewards weekend','$10 off $50 app exclusive'],
+    safeway:['Just for U deals updated'],
+    target:['Circle deals: 20% off snacks'],
+    mcdonalds:['BOGO McDouble today','Free fries w/ $1+ purchase'],
+    starbucks:['Double stars Mon-Thu','Free drink at 400 stars'],
+    chickfila:['Spicy Deluxe deal Sat'],
+    subway:['Free cookie with footlong'],
+    chipotle:['BOGO burrito - app only'],
+    panera:['Free You Pick Two upgrade'],
+    burgerking:['2 for $5 mix & match'],
+    tacobell:['$2 Burritos Tuesday'],
+    costco:['Member savings booklet active'],
+    traderjoes:['Weekly specials updated'],
+    wholefoods:['Prime member deals active'],
+    publix:['BOGO deals updated'],
+    aldi:['Aldi Finds this week']
+  };
+  el.innerHTML = all.map(s => {
+    const hash = s.key.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const pts = 150 + (hash % 900);
+    const promos = promoMap[s.key] || ['Deals loading...'];
+    return `<div class="rw">
+      <div class="rw-top">
+        <div style="font-size:22px">${s.emoji}</div>
+        <div><div class="rw-brand">${s.name}</div><div style="font-size:10px;color:var(--muted)">${S.stores[s.key]?.user||''}</div></div>
+        <div class="rw-pts">${pts} <span>pts</span></div>
+      </div>
+      <div>${promos.map(p=>`<span class="promo">${p}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── PROMOS ──────────────────────────────────────────
+function renderPromos() {
+  const el = document.getElementById('promos-body');
+  if (!el) return;
+  const all = [...GROCERY_STORES,...RESTAURANT_STORES].filter(s => S.stores[s.key]?.connected);
+  if (all.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🏷️</div><p>Connect stores to see app promos.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('stores',document.getElementById('sb-stores'))">CONNECT STORES →</button></p></div>`;
+    return;
+  }
+  const promoData = {
+    kroger:[['3x Fuel Points on groceries','Expires Sun'],['FREE Chobani yogurt — digital coupon','Limit 1'],['$5 off $30 with Boost','Online only'],['Buy 2 get 1 free cereal','Select brands']],
+    walmart:[['Rollback: ground beef $3.98/lb','This week'],['$10 Grocery pickup credit','New users']],
+    albertsons:[['$10 off $50 — app exclusive','Clip coupon'],['Double Gas Rewards weekend','Sat-Sun']],
+    safeway:[['Just for U: 40% off produce','This week'],['Buy 1 get 1 free deli','Select items']],
+    target:[['Circle: 20% off snacks','This week'],['5% off with RedCard','Always']],
+    mcdonalds:[['BOGO McDouble — today only','App order'],['Free fries with $1+ purchase','Mon-Fri'],['$1 any size drink','Ongoing']],
+    starbucks:[['Double stars Mon-Thu','In-store'],['Free drink at 400 stars','Gold tier']],
+    chickfila:[['Spicy Deluxe deal Saturday','App exclusive'],['Free waffle fries w/ entree','This week']],
+    subway:[['Free cookie with footlong','Limited time'],['$6.99 footlong of the day','Select subs']],
+    chipotle:[['BOGO burrito - app only','Today'],['Free guac day - Sunday','11am-2pm']],
+    panera:[['Free You Pick Two upgrade','Rewards members'],['Unlimited sips - $14.99/mo','Subscription']],
+    burgerking:[['2 for $5 mix & match','Ongoing'],['Free Whopper - download app','New users']],
+    tacobell:[['$2 Burritos Tuesday','All day'],['Nacho Fries are back','Limited time']],
+    costco:[['Member savings booklet','Through month end'],['Gas discount this week','Members only']],
+    traderjoes:[['Fearless Flyer deals','This week'],['New items this week','While supplies last']],
+    wholefoods:[['Prime: extra 10% off sale','Always'],['Weekly deep discounts','Members only']],
+    publix:[['BOGO deals updated','This week'],['Digital coupons loaded','App required']],
+    aldi:[['Aldi Finds this week','While supplies last'],['Weekend specials','Sat-Sun only']]
+  };
+  el.innerHTML = all.map(s => {
+    const deals = promoData[s.key] || [['Deals loading...','Check app']];
+    const rows = deals.map(d=>`<div class="lr"><div class="lr-name">${d[0]}</div><div class="lr-detail">${d[1]}</div></div>`).join('');
+    return `<div class="panel" style="margin-bottom:16px">
+      <div class="ph"><h3>${s.emoji} ${s.name} — ${deals.length} Active</h3></div>
+      <div class="pb">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── WEEKLY ADS ──────────────────────────────────────────
+function renderAds() {
+  const el = document.getElementById('ads-body');
+  if (!el) return;
+  const grocStores = GROCERY_STORES.filter(s => S.stores[s.key]?.connected);
+  if (grocStores.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">📰</div><p>Connect grocery stores to see weekly ads.<br><button class="btn-lime" style="margin-top:16px;font-size:13px;padding:10px 24px" onclick="tab('stores',document.getElementById('sb-stores'))">CONNECT STORES →</button></p></div>`;
+    return;
+  }
+  const adsData = {
+    kroger:[['🥩','80/20 Ground Beef 3lb','$9.99'],['🍗','Boneless Chicken Thighs 3lb','$6.99'],['🥤','Pepsi 12-pack','$4.99'],['🫒','EVOO 17oz','$5.49'],['🧃','Apple Juice 64oz','$2.99']],
+    walmart:[['🍎','Gala Apples 3lb bag','$3.48'],['🥩','Pork Chops 2lb','$5.96'],['🥛','Whole Milk 1gal','$3.78'],['🧴','Dish soap 30oz','$1.97']],
+    albertsons:[['🍓','Strawberries 1lb','$1.99'],['🥬','Romaine Hearts 3-pack','$2.49'],['🧈','Butter 2lb','$6.99'],['🫐','Blueberries 1pt','$2.99']],
+    safeway:[['🥦','Broccoli crowns per lb','$0.99'],['🍊','Navel Oranges 4lb','$4.99'],['🥚','Eggs 1dz large','$2.49'],['🧀','Kraft Singles 24ct','$4.29']],
+    target:[['🧃','LaCroix 12-pack','$4.99'],['🍿','Popcorn Smartfood','$3.49'],['🫙','Peanut Butter 40oz','$5.99'],['🥫','Canned tomatoes 28oz','$1.79']],
+    publix:[['🍗','Deli fried chicken 8pc','$8.99'],['🍞','Pepperidge Farm bread 2for','$5.00'],['🧃','Tropicana OJ 52oz','$3.99']],
+    aldi:[['🥩','Ribeye steak per lb','$9.99'],['🍫','Moser Roth chocolate','$1.99'],['🫙','Specially Selected jam','$2.49']],
+    costco:[['🥩','Prime ribeye per lb','$14.99'],['🍕','Kirkland pizza 4-pack','$14.99'],['🥚','Eggs 5dz','$14.99']],
+    traderjoes:[['🌿','Organic baby spinach 5oz','$2.99'],['🧀','TJ Brie round','$3.49'],['🫙','Speculoos butter','$3.99']],
+    wholefoods:[['🍎','Organic Fuji apples per lb','$1.99'],['🥩','365 grass-fed beef per lb','$6.99'],['🫙','365 olive oil 16.9oz','$7.99']]
+  };
+  el.innerHTML = grocStores.map(s => {
+    const items = adsData[s.key] || [];
+    if (!items.length) return '';
+    const rows = items.map(i=>`<div class="lr"><div style="width:24px;text-align:center">${i[0]}</div><div class="lr-name">${i[1]}</div><div class="lr-price">${i[2]}</div></div>`).join('');
+    return `<div class="panel" style="margin-bottom:16px">
+      <div class="ph"><h3>${s.emoji} ${s.name} — This Week</h3></div>
+      <div class="pb">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── DASHBOARD ──────────────────────────────────────────
+function renderDashboard() {
+  const connectedKeys = Object.keys(S.stores).filter(k => S.stores[k].connected);
+  const ct = connectedKeys.length;
+  const pending = S.receipts.filter(r => r.pending).length;
+  document.getElementById('d-stores').textContent = ct;
+  document.getElementById('d-items').textContent = S.list.length;
+  document.getElementById('d-receipts').textContent = S.receipts.length;
+  document.getElementById('dash-sub').textContent = `${ct} STORE${ct!==1?'S':''} CONNECTED`;
+  document.getElementById('d-stores-sub').textContent = ct > 0 ? `${ct} active connection${ct!==1?'s':''}` : 'Connect to enable sync';
+  document.getElementById('d-items-sub').textContent = S.list.length > 0 ? 'Run optimizer below' : 'Add items to get started';
+  document.getElementById('d-pending').textContent = pending > 0 ? `${pending} pending submission` : 'None pending';
+  // Simulated savings based on list + stores
+  let saved = 0;
+  if (S.list.length && ct > 0) {
+    S.list.forEach(item => {
+      const prices = getSimPrices(item.name, connectedKeys);
+      if (prices.length < 2) return;
+      prices.sort((a,b) => a.final - b.final);
+      saved += (prices[prices.length-1].final - prices[0].final) * (item.qty||1);
+    });
+  }
+  document.getElementById('d-saved').textContent = `$${saved.toFixed(2)}`;
+  // Notif bar
+  const notifEl = document.getElementById('dash-notif');
+  if (pending > 0) {
+    notifEl.style.display = 'flex';
+    notifEl.className = 'notif';
+    notifEl.innerHTML = `🔔 <strong>${pending} receipt${pending!==1?'s':''}</strong> pending rewards submission. <button class="pa" style="margin-left:auto" onclick="tab('receipts',document.getElementById('sb-receipts'))">REVIEW →</button>`;
+  } else {
+    notifEl.style.display = 'none';
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── BOOT ──────────────────────────────────────────
+init();
 </script>
 </body>
 </html>
+HTMLEOF
+echo "done"

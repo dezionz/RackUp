@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RackUp — Smart Grocery Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050505;
+    --surface: #0d0d0d;
+    --surface2: #141414;
+    --surface3: #1c1c1c;
+    --border: #222;
+    --lime: #b4ff00;
+    --lime-dim: #7ab000;
+    --lime-glow: rgba(180,255,0,0.12);
+    --lime-glow2: rgba(180,255,0,0.06);
+    --text: #f0f0f0;
+    --text-muted: #666;
+    --text-dim: #999;
+    --red: #ff3b3b;
+    --gold: #f5c518;
+    --radius: 6px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(180,255,0,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(180,255,0,0.035) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display:none; position:relative; z-index:1; min-height:100vh; }
+  .screen.active { display:block; }
+
+  /* ══════════════════════════
+     NAV
+  ══════════════════════════ */
+  nav {
+    position:sticky; top:0; z-index:100;
+    background: rgba(5,5,5,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 56px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-logo {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:28px;
+    letter-spacing:3px;
+    color:var(--lime);
+    cursor:pointer;
+  }
+  .nav-logo span { color:var(--text-muted); font-size:11px; font-family:'DM Mono',monospace; letter-spacing:1px; vertical-align:middle; margin-left:8px; }
+  .nav-tabs {
+    display:flex; gap:4px;
+  }
+  .nav-tab {
+    background:none; border:none; color:var(--text-muted);
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px;
+    padding:6px 12px; cursor:pointer; border-radius:var(--radius);
+    transition: all 0.2s; text-transform:uppercase;
+  }
+  .nav-tab:hover { color:var(--text); background:var(--surface2); }
+  .nav-tab.active { color:var(--lime); background:var(--lime-glow2); }
+  .nav-beta {
+    background: var(--lime); color:var(--black);
+    font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:2px;
+    padding:5px 14px; border:none; border-radius:var(--radius); cursor:pointer;
+    transition: opacity 0.2s;
+  }
+  .nav-beta:hover { opacity:0.85; }
+
+  /* ══════════════════════════
+     LANDING
+  ══════════════════════════ */
+  .hero {
+    padding: 80px 24px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align:center;
+  }
+  .hero-beta-badge {
+    display:inline-block;
+    border:1px solid var(--lime);
+    color:var(--lime);
+    font-size:10px; letter-spacing:3px;
+    padding:5px 16px; border-radius:50px;
+    margin-bottom:32px;
+    background: var(--lime-glow2);
+    animation: pulse-badge 3s ease-in-out infinite;
+  }
+  @keyframes pulse-badge {
+    0%,100% { box-shadow:0 0 0 0 var(--lime-glow); }
+    50% { box-shadow:0 0 0 6px transparent; }
+  }
+  .hero h1 {
+    font-family:'Bebas Neue',sans-serif;
+    font-size: clamp(64px, 14vw, 140px);
+    letter-spacing: 8px;
+    line-height:0.9;
+    color:var(--text);
+    margin-bottom:8px;
+  }
+  .hero h1 span { color:var(--lime); }
+  .hero-sub {
+    font-size:12px; letter-spacing:3px; color:var(--text-muted);
+    text-transform:uppercase; margin-bottom:32px;
+  }
+  .hero-desc {
+    font-size:15px; color:var(--text-dim); line-height:1.8;
+    max-width:580px; margin:0 auto 48px;
+  }
+  .hero-cta-row {
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+  }
+  .btn-primary {
+    background:var(--lime); color:var(--black);
+    font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px;
+    padding:14px 36px; border:none; border-radius:var(--radius);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-primary:hover { opacity:0.9; transform:translateY(-1px); box-shadow:0 6px 20px var(--lime-glow); }
+  .btn-ghost {
+    background:none; color:var(--text);
+    font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px;
+    padding:14px 36px; border:1px solid var(--border); border-radius:var(--radius);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-ghost:hover { border-color:var(--lime); color:var(--lime); }
+
+  .beta-banner {
+    margin:0 24px 60px;
+    background: var(--lime-glow2);
+    border:1px solid rgba(180,255,0,0.2);
+    border-radius:var(--radius);
+    padding:20px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap;
+    max-width:900px; margin-left:auto; margin-right:auto;
+  }
+  .beta-banner-left { display:flex; align-items:center; gap:16px; }
+  .beta-icon { font-size:28px; }
+  .beta-banner h3 {
+    font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--lime);
+    margin-bottom:2px;
+  }
+  .beta-banner p { font-size:11px; color:var(--text-dim); }
+
+  /* FEATURES GRID */
+  .section {
+    max-width:900px; margin:0 auto; padding:0 24px 60px;
+  }
+  .section-label {
+    font-size:10px; letter-spacing:4px; color:var(--lime); text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  .section-title {
+    font-family:'Bebas Neue',sans-serif; font-size:42px; letter-spacing:3px;
+    color:var(--text); margin-bottom:40px; line-height:1;
+  }
+  .features-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:2px;
+  }
+  .feat-card {
+    background:var(--surface); border:1px solid var(--border);
+    padding:28px 24px;
+    transition: all 0.2s;
+    position:relative; overflow:hidden;
+  }
+  .feat-card::before {
+    content:''; position:absolute; top:0; left:0;
+    width:2px; height:0;
+    background:var(--lime);
+    transition: height 0.3s;
+  }
+  .feat-card:hover::before { height:100%; }
+  .feat-card:hover { background:var(--surface2); }
+  .feat-icon {
+    font-size:22px; margin-bottom:14px;
+  }
+  .feat-card h3 {
+    font-family:'Syne',sans-serif; font-weight:700; font-size:13px;
+    color:var(--text); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;
+  }
+  .feat-card p { font-size:11px; color:var(--text-muted); line-height:1.7; }
+  .feat-badge {
+    display:inline-block; background:var(--lime); color:var(--black);
+    font-size:8px; letter-spacing:2px; padding:2px 8px;
+    border-radius:2px; font-weight:700; margin-top:10px;
+  }
+
+  /* PRICING */
+  .pricing-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:12px;
+    margin-bottom:32px;
+  }
+  .price-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:32px 24px;
+    position:relative; transition:all 0.2s;
+  }
+  .price-card.featured {
+    border-color:var(--lime);
+    background:var(--surface2);
+  }
+  .price-card.featured::after {
+    content:'BEST VALUE';
+    position:absolute; top:-1px; right:20px;
+    background:var(--lime); color:var(--black);
+    font-size:8px; letter-spacing:2px; font-weight:700;
+    padding:3px 10px;
+  }
+  .price-tag {
+    font-family:'Bebas Neue',sans-serif; font-size:52px; color:var(--lime);
+    line-height:1; margin-bottom:4px;
+  }
+  .price-tag span { font-size:18px; color:var(--text-muted); }
+  .price-tier {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:11px;
+    text-transform:uppercase; letter-spacing:2px; color:var(--text-dim);
+    margin-bottom:20px;
+  }
+  .price-features { list-style:none; margin-bottom:28px; }
+  .price-features li {
+    font-size:11px; color:var(--text-dim); padding:5px 0;
+    border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;
+  }
+  .price-features li::before { content:'→'; color:var(--lime); font-size:10px; }
+  .price-features li.locked::before { content:'✕'; color:var(--text-muted); }
+  .price-features li.locked { opacity:0.45; }
+  .price-btn {
+    width:100%; padding:12px; border:none; border-radius:var(--radius);
+    font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:2px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .price-btn-lime { background:var(--lime); color:var(--black); }
+  .price-btn-lime:hover { opacity:0.9; }
+  .price-btn-outline { background:none; color:var(--text); border:1px solid var(--border); }
+  .price-btn-outline:hover { border-color:var(--lime); color:var(--lime); }
+  .savings-note {
+    text-align:center; font-size:11px; color:var(--text-muted);
+    margin-top:-16px; margin-bottom:40px;
+  }
+  .savings-note strong { color:var(--lime); }
+
+  /* ══════════════════════════
+     APP SCREEN
+  ══════════════════════════ */
+  .app-layout {
+    display:flex; min-height:calc(100vh - 56px);
+  }
+  .sidebar {
+    width:220px; flex-shrink:0;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    padding:20px 0;
+    position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
+  }
+  .sidebar-section { padding:0 16px; margin-bottom:24px; }
+  .sidebar-label {
+    font-size:9px; letter-spacing:3px; color:var(--text-muted);
+    text-transform:uppercase; margin-bottom:8px; padding-left:4px;
+  }
+  .sidebar-item {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:var(--radius);
+    cursor:pointer; transition:all 0.15s;
+    font-size:12px; color:var(--text-dim);
+    border:1px solid transparent;
+  }
+  .sidebar-item:hover { background:var(--surface2); color:var(--text); }
+  .sidebar-item.active {
+    background:var(--lime-glow2); color:var(--lime);
+    border-color:rgba(180,255,0,0.15);
+  }
+  .sidebar-item .si-icon { font-size:14px; width:20px; text-align:center; }
+  .sidebar-item .si-badge {
+    margin-left:auto; background:var(--lime); color:var(--black);
+    font-size:8px; padding:1px 6px; border-radius:10px; font-weight:700;
+  }
+  .app-main { flex:1; padding:28px 28px; overflow-y:auto; }
+
+  /* Dashboard panels */
+  .dash-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px 18px;
+  }
+  .stat-card .stat-val {
+    font-family:'Bebas Neue',sans-serif; font-size:38px; color:var(--lime); line-height:1;
+  }
+  .stat-card .stat-label { font-size:10px; letter-spacing:2px; color:var(--text-muted); margin-top:4px; }
+  .stat-card .stat-sub { font-size:11px; color:var(--text-dim); margin-top:8px; }
+
+  .panel {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); margin-bottom:16px; overflow:hidden;
+  }
+  .panel-header {
+    padding:14px 20px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .panel-header h3 {
+    font-family:'Syne',sans-serif; font-weight:700; font-size:12px;
+    text-transform:uppercase; letter-spacing:2px; color:var(--text);
+  }
+  .panel-body { padding:20px; }
+  .panel-action {
+    background:none; border:1px solid var(--border); color:var(--text-dim);
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px;
+    padding:5px 12px; border-radius:var(--radius); cursor:pointer; transition:all 0.2s;
+  }
+  .panel-action:hover { border-color:var(--lime); color:var(--lime); }
+
+  /* List items */
+  .list-row {
+    display:flex; align-items:center; gap:12px; padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    font-size:12px;
+  }
+  .list-row:last-child { border-bottom:none; }
+  .list-row .lr-icon { font-size:16px; width:28px; text-align:center; }
+  .list-row .lr-name { flex:1; color:var(--text); }
+  .list-row .lr-detail { color:var(--text-muted); font-size:11px; }
+  .list-row .lr-price { color:var(--lime); font-weight:500; min-width:60px; text-align:right; }
+  .list-row .lr-best {
+    background:var(--lime); color:var(--black);
+    font-size:8px; letter-spacing:1px; padding:2px 7px; border-radius:2px; font-weight:700;
+  }
+
+  /* Compare table */
+  .compare-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .compare-table th {
+    text-align:left; padding:8px 12px;
+    color:var(--text-muted); font-weight:400; letter-spacing:1px;
+    border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase;
+  }
+  .compare-table td {
+    padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.04);
+    color:var(--text-dim);
+  }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table .best-price { color:var(--lime); font-weight:500; }
+  .compare-table .store-name { color:var(--text); }
+  .compare-table .strikethrough { text-decoration:line-through; opacity:0.4; }
+  .compare-table tr.winner { background:var(--lime-glow2); }
+  .compare-table tr.winner td { color:var(--text); }
+
+  /* Basket optimizer */
+  .optimizer-result {
+    background:var(--surface2); border:1px solid rgba(180,255,0,0.2);
+    border-radius:var(--radius); padding:20px;
+  }
+  .optimizer-result .savings-big {
+    font-family:'Bebas Neue',sans-serif; font-size:56px; color:var(--lime); line-height:1;
+    margin-bottom:4px;
+  }
+  .optimizer-store-split { display:flex; gap:12px; flex-wrap:wrap; margin-top:20px; }
+  .store-bucket {
+    flex:1; min-width:140px;
+    background:var(--surface3); border:1px solid var(--border);
+    border-radius:var(--radius); padding:14px;
+  }
+  .store-bucket h4 {
+    font-family:'Syne',sans-serif; font-weight:700; font-size:11px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--text);
+    margin-bottom:10px;
+  }
+  .store-bucket .item-chip {
+    background:var(--border); color:var(--text-dim);
+    font-size:10px; padding:3px 8px; border-radius:3px;
+    display:inline-block; margin:2px;
+  }
+  .store-bucket .bucket-total {
+    margin-top:10px; font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--lime);
+  }
+
+  /* Stores connections */
+  .store-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:8px; }
+  .store-tile {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .store-tile:hover { border-color:var(--lime); }
+  .store-tile.connected { border-color:rgba(180,255,0,0.3); }
+  .store-tile .st-emoji { font-size:24px; }
+  .store-tile .st-name { font-size:11px; color:var(--text); font-weight:500; }
+  .store-tile .st-status { font-size:9px; letter-spacing:1px; color:var(--text-muted); }
+  .store-tile.connected .st-status { color:var(--lime); }
+  .store-tile .st-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:var(--border);
+  }
+  .store-tile.connected .st-dot { background:var(--lime); box-shadow:0 0 6px var(--lime); }
+
+  /* Receipt */
+  .receipt-scan-area {
+    border:2px dashed var(--border); border-radius:var(--radius);
+    padding:48px 24px; text-align:center; cursor:pointer; transition:all 0.2s;
+    margin-bottom:20px;
+  }
+  .receipt-scan-area:hover { border-color:var(--lime); background:var(--lime-glow2); }
+  .receipt-scan-area .rs-icon { font-size:40px; margin-bottom:12px; }
+  .receipt-scan-area p { font-size:12px; color:var(--text-muted); }
+  .receipt-scan-area strong { color:var(--lime); }
+
+  .receipt-card {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px 20px; margin-bottom:8px;
+    display:flex; align-items:center; gap:16px;
+  }
+  .receipt-card .rc-store { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
+  .receipt-card .rc-date { font-size:10px; color:var(--text-muted); }
+  .receipt-card .rc-total { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--lime); margin-left:auto; }
+  .receipt-card .rc-tag {
+    background:rgba(245,197,24,0.15); color:var(--gold);
+    font-size:8px; letter-spacing:1px; padding:2px 8px; border-radius:2px; font-weight:700;
+  }
+
+  /* Rewards */
+  .reward-card {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:18px 20px; margin-bottom:8px;
+  }
+  .reward-card .rw-top { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .reward-card .rw-logo { font-size:22px; }
+  .reward-card .rw-brand { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
+  .reward-card .rw-pts {
+    margin-left:auto; font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--lime);
+  }
+  .reward-card .rw-pts span { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-muted); }
+  .promo-chip {
+    background:rgba(180,255,0,0.08); border:1px solid rgba(180,255,0,0.2);
+    color:var(--lime); font-size:10px; padding:5px 10px;
+    border-radius:3px; display:inline-block; margin:3px;
+  }
+
+  /* Grocery list */
+  .list-add-row {
+    display:flex; gap:8px; margin-bottom:16px;
+  }
+  .list-add-row input {
+    flex:1; background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Mono',monospace; font-size:12px;
+    padding:10px 14px; border-radius:var(--radius); outline:none;
+    transition: border-color 0.2s;
+  }
+  .list-add-row input:focus { border-color:var(--lime); }
+  .list-add-row input::placeholder { color:var(--text-muted); }
+  .list-add-row button {
+    background:var(--lime); color:var(--black);
+    border:none; border-radius:var(--radius); padding:10px 18px;
+    font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:1px;
+    cursor:pointer;
+  }
+
+  .grocery-item {
+    display:flex; align-items:center; gap:12px; padding:10px 14px;
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); margin-bottom:6px; transition:all 0.2s;
+  }
+  .grocery-item:hover { border-color:rgba(180,255,0,0.2); }
+  .grocery-item input[type=checkbox] { accent-color:var(--lime); width:14px; height:14px; }
+  .grocery-item .gi-name { flex:1; font-size:12px; color:var(--text); }
+  .grocery-item .gi-qty { font-size:11px; color:var(--text-muted); min-width:40px; }
+  .grocery-item .gi-best { font-size:11px; color:var(--lime); }
+  .grocery-item .gi-store { font-size:10px; color:var(--text-muted); }
+  .grocery-item .gi-del {
+    background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;
+    transition:color 0.2s; padding:2px 6px;
+  }
+  .grocery-item .gi-del:hover { color:var(--red); }
+
+  /* Page title */
+  .page-title {
+    font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:3px;
+    color:var(--text); margin-bottom:4px;
+  }
+  .page-title span { color:var(--lime); }
+  .page-sub { font-size:11px; color:var(--text-muted); margin-bottom:24px; letter-spacing:1px; }
+
+  /* Notification bar */
+  .notif-bar {
+    background:rgba(180,255,0,0.08); border:1px solid rgba(180,255,0,0.2);
+    border-radius:var(--radius); padding:12px 18px; margin-bottom:20px;
+    display:flex; align-items:center; gap:12px; font-size:11px; color:var(--text-dim);
+  }
+  .notif-bar strong { color:var(--lime); }
+
+  /* Mobile hint */
+  @media(max-width:640px) {
+    .sidebar { display:none; }
+    .hero h1 { font-size:72px; }
+    .nav-tabs { display:none; }
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .screen.active .hero { animation:fadeUp 0.5s ease both; }
+  .screen.active .beta-banner { animation:fadeUp 0.5s 0.1s ease both; }
+
+  /* Tab switching */
+  .app-tab { display:none; }
+  .app-tab.active { display:block; }
+
+  /* Pill tabs */
+  .pill-tabs { display:flex; gap:4px; margin-bottom:20px; flex-wrap:wrap; }
+  .pill-tab {
+    background:var(--surface2); border:1px solid var(--border); color:var(--text-muted);
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px;
+    padding:7px 14px; cursor:pointer; border-radius:var(--radius);
+    transition:all 0.2s; text-transform:uppercase;
+  }
+  .pill-tab:hover { color:var(--text); border-color:var(--text-muted); }
+  .pill-tab.active { background:var(--lime-glow); border-color:var(--lime); color:var(--lime); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showScreen('landing')">RACK<span style="color:var(--lime)">UP</span> <span>BETA</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="showScreen('landing')">Home</button>
+    <button class="nav-tab" onclick="showScreen('app')">App</button>
+    <button class="nav-tab" onclick="showScreen('pricing')">Pricing</button>
+  </div>
+  <button class="nav-beta" onclick="showScreen('app')">LAUNCH APP →</button>
+</nav>
+
+<!-- ══════════════════════════════════════
+     LANDING SCREEN
+══════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="hero">
+    <div class="hero-beta-badge">🟢 BETA — 90 DAYS FREE — NO CARD REQUIRED</div>
+    <h1>RACK<span>UP</span></h1>
+    <p class="hero-sub">Smart Grocery Intelligence Platform</p>
+    <p class="hero-desc">Connect every grocery store and restaurant app. Compare every price instantly. Split your cart across stores and save the most money possible — automatically.</p>
+    <div class="hero-cta-row">
+      <button class="btn-primary" onclick="showScreen('app')">START FREE BETA →</button>
+      <button class="btn-ghost" onclick="showScreen('pricing')">SEE PRICING</button>
+    </div>
+  </div>
+
+  <div class="beta-banner">
+    <div class="beta-banner-left">
+      <div class="beta-icon">🔓</div>
+      <div>
+        <h3>BETA ACCESS — EVERYTHING FREE FOR 90 DAYS</h3>
+        <p>No credit card. No trial limits. Beta users locked in free forever as a loyalty reward.</p>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="showScreen('app')">JOIN BETA</button>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Core Features</div>
+    <div class="section-title">STOP LEAVING MONEY ON THE TABLE</div>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🧺</div>
+        <h3>Basket Optimizer</h3>
+        <p>Analyzes your full list and calculates the cheapest split across all your stores. Exact items, exact stores, exact savings.</p>
+        <div class="feat-badge">KILLER FEATURE</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔄</div>
+        <h3>Live Price Sync</h3>
+        <p>RackUp logs into your store accounts and pulls your personalized prices, sales, and digital coupons in real time.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <h3>Full Compare Matrix</h3>
+        <p>Every item × every store — brand, size, regular price, sale price, after coupon, after rewards. True apples-to-apples.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📸</div>
+        <h3>Receipt Scanner</h3>
+        <p>Snap a receipt. AI reads the merchant, items, total, and date. Full spending history with rewards submission reminders.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🍔</div>
+        <h3>Restaurant Rewards</h3>
+        <p>McDonald's, Starbucks, Chick-fil-A, Subway and more — all points and current promos in one place.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔒</div>
+        <h3>Private by Design</h3>
+        <p>All credentials stored encrypted locally on your device. Nothing uploaded to any server. Your data never leaves.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📰</div>
+        <h3>Weekly Ads + Flipp</h3>
+        <p>Pulls weekly sale prices from all major grocery stores via Flipp integration to layer on top of your connected accounts.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔔</div>
+        <h3>End-of-Day Summary</h3>
+        <p>Daily push notification listing all receipts pending rewards submission and exactly which programs to submit each one to.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📦</div>
+        <h3>Open Source</h3>
+        <p>Full source available on GitHub. Community-driven. Audit the code. Fork it. Build on it.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SCREEN
+══════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+  <div class="app-layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <div class="sidebar-item active" onclick="switchTab('dashboard',this)">
+          <span class="si-icon">⚡</span> Dashboard
+        </div>
+        <div class="sidebar-item" onclick="switchTab('list',this)">
+          <span class="si-icon">📋</span> Grocery List
+          <span class="si-badge">8</span>
+        </div>
+        <div class="sidebar-item" onclick="switchTab('compare',this)">
+          <span class="si-icon">📊</span> Price Compare
+        </div>
+        <div class="sidebar-item" onclick="switchTab('optimizer',this)">
+          <span class="si-icon">🧺</span> Basket Optimizer
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Savings</div>
+        <div class="sidebar-item" onclick="switchTab('receipts',this)">
+          <span class="si-icon">📸</span> Receipt Scanner
+          <span class="si-badge">2</span>
+        </div>
+        <div class="sidebar-item" onclick="switchTab('rewards',this)">
+          <span class="si-icon">🏆</span> Rewards
+        </div>
+        <div class="sidebar-item" onclick="switchTab('promos',this)">
+          <span class="si-icon">🏷️</span> App Promos
+        </div>
+        <div class="sidebar-item" onclick="switchTab('ads',this)">
+          <span class="si-icon">📰</span> Weekly Ads
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Settings</div>
+        <div class="sidebar-item" onclick="switchTab('stores',this)">
+          <span class="si-icon">🔗</span> Stores
+        </div>
+        <div class="sidebar-item" onclick="showScreen('pricing')">
+          <span class="si-icon">💳</span> Subscription
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="app-main">
+
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard" class="app-tab active">
+        <div class="notif-bar">
+          🔔 <strong>2 receipts</strong> pending rewards submission — Kroger + McDonald's. <strong>Submit now to earn points →</strong>
+        </div>
+        <div class="page-title">DASH<span>BOARD</span></div>
+        <div class="page-sub">LAST SYNCED 4 MIN AGO · 5 STORES CONNECTED</div>
+
+        <div class="dash-row">
+          <div class="stat-card">
+            <div class="stat-val">$31.44</div>
+            <div class="stat-label">Saved This Week</div>
+            <div class="stat-sub">↑ $8.20 vs last week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">$214</div>
+            <div class="stat-label">Saved This Month</div>
+            <div class="stat-sub">Across 5 stores</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">2,840</div>
+            <div class="stat-label">Total Reward Points</div>
+            <div class="stat-sub">4 programs active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">8</div>
+            <div class="stat-label">Items in List</div>
+            <div class="stat-sub">Optimizer ready</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Best Deals Right Now</h3>
+            <button class="panel-action" onclick="switchTabDirect('compare')">COMPARE ALL →</button>
+          </div>
+          <div class="panel-body">
+            <div class="list-row">
+              <div class="lr-icon">🥛</div>
+              <div class="lr-name">Whole Milk, 1 Gallon</div>
+              <div class="lr-detail">Kroger — after coupon</div>
+              <div class="lr-price">$2.99</div>
+              <div class="lr-best">BEST</div>
+            </div>
+            <div class="list-row">
+              <div class="lr-icon">🍞</div>
+              <div class="lr-name">Dave's Killer Bread</div>
+              <div class="lr-detail">Albertsons — sale</div>
+              <div class="lr-price">$3.49</div>
+              <div class="lr-best">BEST</div>
+            </div>
+            <div class="list-row">
+              <div class="lr-icon">🥚</div>
+              <div class="lr-name">Eggs, 1 Dozen Large</div>
+              <div class="lr-detail">Walmart — regular</div>
+              <div class="lr-price">$2.18</div>
+              <div class="lr-best">BEST</div>
+            </div>
+            <div class="list-row">
+              <div class="lr-icon">🧀</div>
+              <div class="lr-name">Shredded Cheddar 16oz</div>
+              <div class="lr-detail">Safeway — digital coupon</div>
+              <div class="lr-price">$3.79</div>
+              <div class="lr-best">BEST</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Optimizer Recommendation</h3>
+            <button class="panel-action" onclick="switchTabDirect('optimizer')">FULL REPORT →</button>
+          </div>
+          <div class="panel-body">
+            <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">SPLIT YOUR CART &amp; SAVE</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--lime);line-height:1">$14.72</div>
+                <div style="font-size:11px;color:var(--text-dim)">vs buying everything at Kroger</div>
+              </div>
+              <div style="flex:1;min-width:200px">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">RECOMMENDED SPLIT</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <div style="background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:11px">
+                    <div style="color:var(--text);font-weight:600">Walmart</div>
+                    <div style="color:var(--text-muted)">4 items · $18.42</div>
+                  </div>
+                  <div style="background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:11px">
+                    <div style="color:var(--text);font-weight:600">Kroger</div>
+                    <div style="color:var(--text-muted)">3 items · $12.88</div>
+                  </div>
+                  <div style="background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:11px">
+                    <div style="color:var(--text);font-weight:600">Albertsons</div>
+                    <div style="color:var(--text-muted)">1 item · $3.49</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GROCERY LIST -->
+      <div id="tab-list" class="app-tab">
+        <div class="page-title">GROCERY <span>LIST</span></div>
+        <div class="page-sub">8 ITEMS · PRICES SYNCED ACROSS 5 STORES</div>
+        <div class="list-add-row">
+          <input type="text" id="newItem" placeholder="Add item... (or scan barcode 📷)" onkeydown="if(event.key==='Enter')addItem()">
+          <button onclick="addItem()">ADD</button>
+        </div>
+        <div id="groceryList">
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Whole Milk 1 Gallon</div><div class="gi-qty">×1</div><div class="gi-best">$2.99</div><div class="gi-store">Kroger</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Dave's Killer Bread</div><div class="gi-qty">×1</div><div class="gi-best">$3.49</div><div class="gi-store">Albertsons</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Eggs Large 1 Dozen</div><div class="gi-qty">×2</div><div class="gi-best">$2.18</div><div class="gi-store">Walmart</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Shredded Cheddar 16oz</div><div class="gi-qty">×1</div><div class="gi-best">$3.79</div><div class="gi-store">Safeway</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Chicken Breast 2lb</div><div class="gi-qty">×1</div><div class="gi-best">$7.98</div><div class="gi-store">Walmart</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Roma Tomatoes</div><div class="gi-qty">×4</div><div class="gi-best">$0.88/lb</div><div class="gi-store">Kroger</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Orange Juice 52oz</div><div class="gi-qty">×1</div><div class="gi-best">$3.99</div><div class="gi-store">Albertsons</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+          <div class="grocery-item"><input type="checkbox"><div class="gi-name">Greek Yogurt 32oz</div><div class="gi-qty">×1</div><div class="gi-best">$4.49</div><div class="gi-store">Kroger</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button></div>
+        </div>
+      </div>
+
+      <!-- PRICE COMPARE -->
+      <div id="tab-compare" class="app-tab">
+        <div class="page-title">PRICE <span>COMPARE</span></div>
+        <div class="page-sub">FULL MATRIX ACROSS ALL CONNECTED STORES</div>
+
+        <div class="pill-tabs">
+          <div class="pill-tab active">Whole Milk 1 Gal</div>
+          <div class="pill-tab">Eggs 1 Dz</div>
+          <div class="pill-tab">Bread</div>
+          <div class="pill-tab">Cheddar 16oz</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Whole Milk — 1 Gallon — All Stores</h3>
+          </div>
+          <div class="panel-body" style="overflow-x:auto">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>Store</th>
+                  <th>Brand</th>
+                  <th>Regular</th>
+                  <th>Sale</th>
+                  <th>After Coupon</th>
+                  <th>After Rewards</th>
+                  <th>Final Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="winner">
+                  <td class="store-name">🏪 Kroger</td>
+                  <td>Kroger Brand</td>
+                  <td class="strikethrough">$4.29</td>
+                  <td>$3.49</td>
+                  <td>$2.99</td>
+                  <td>$2.99</td>
+                  <td class="best-price">$2.99 ✓</td>
+                </tr>
+                <tr>
+                  <td class="store-name">🏪 Walmart</td>
+                  <td>Great Value</td>
+                  <td>$3.78</td>
+                  <td>—</td>
+                  <td>$3.78</td>
+                  <td>$3.78</td>
+                  <td>$3.78</td>
+                </tr>
+                <tr>
+                  <td class="store-name">🏪 Albertsons</td>
+                  <td>Lucerne</td>
+                  <td class="strikethrough">$4.99</td>
+                  <td>$3.99</td>
+                  <td>$3.99</td>
+                  <td>$3.74</td>
+                  <td>$3.74</td>
+                </tr>
+                <tr>
+                  <td class="store-name">🏪 Safeway</td>
+                  <td>O Organics</td>
+                  <td>$5.49</td>
+                  <td>—</td>
+                  <td>$4.99</td>
+                  <td>$4.99</td>
+                  <td>$4.99</td>
+                </tr>
+                <tr>
+                  <td class="store-name">🏪 Target</td>
+                  <td>Good &amp; Gather</td>
+                  <td>$4.19</td>
+                  <td>—</td>
+                  <td>$4.19</td>
+                  <td>$3.98</td>
+                  <td>$3.98</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--lime);padding:8px 4px">✓ Best price: Kroger at $2.99 — saves $0.99 vs Walmart, $1.00 vs Albertsons</div>
+      </div>
+
+      <!-- BASKET OPTIMIZER -->
+      <div id="tab-optimizer" class="app-tab">
+        <div class="page-title">BASKET <span>OPTIMIZER</span></div>
+        <div class="page-sub">8 ITEMS · ANALYZING 5 STORES</div>
+
+        <div class="optimizer-result">
+          <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:8px">TOTAL SAVINGS IF YOU SPLIT YOUR CART</div>
+          <div class="savings-big">$14.72</div>
+          <div style="font-size:12px;color:var(--text-dim)">vs buying everything at a single store (cheapest single-store: Kroger $49.80)</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);margin-top:4px">OPTIMIZED TOTAL: $35.08</div>
+
+          <div class="optimizer-store-split">
+            <div class="store-bucket">
+              <h4>🏪 Walmart — 3 items</h4>
+              <span class="item-chip">Eggs $2.18</span>
+              <span class="item-chip">Chicken $7.98</span>
+              <span class="item-chip">OJ $3.69</span>
+              <div class="bucket-total">$13.85</div>
+            </div>
+            <div class="store-bucket">
+              <h4>🏪 Kroger — 3 items</h4>
+              <span class="item-chip">Milk $2.99</span>
+              <span class="item-chip">Tomatoes $1.76</span>
+              <span class="item-chip">Greek Yogurt $4.49</span>
+              <div class="bucket-total">$9.24</div>
+            </div>
+            <div class="store-bucket">
+              <h4>🏪 Albertsons — 2 items</h4>
+              <span class="item-chip">Bread $3.49</span>
+              <span class="item-chip">Cheddar $4.50</span>
+              <div class="bucket-total">$7.99</div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+            <div style="font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px">ITEM-BY-ITEM ROUTING</div>
+            <div class="list-row"><div class="lr-icon">🥛</div><div class="lr-name">Whole Milk</div><div class="lr-detail">→ Kroger</div><div class="lr-price">$2.99</div></div>
+            <div class="list-row"><div class="lr-icon">🍞</div><div class="lr-name">Dave's Killer Bread</div><div class="lr-detail">→ Albertsons</div><div class="lr-price">$3.49</div></div>
+            <div class="list-row"><div class="lr-icon">🥚</div><div class="lr-name">Eggs 1 Dozen ×2</div><div class="lr-detail">→ Walmart</div><div class="lr-price">$4.36</div></div>
+            <div class="list-row"><div class="lr-icon">🧀</div><div class="lr-name">Cheddar 16oz</div><div class="lr-detail">→ Albertsons</div><div class="lr-price">$4.50</div></div>
+            <div class="list-row"><div class="lr-icon">🍗</div><div class="lr-name">Chicken Breast 2lb</div><div class="lr-detail">→ Walmart</div><div class="lr-price">$7.98</div></div>
+            <div class="list-row"><div class="lr-icon">🍅</div><div class="lr-name">Roma Tomatoes</div><div class="lr-detail">→ Kroger</div><div class="lr-price">$1.76</div></div>
+            <div class="list-row"><div class="lr-icon">🍊</div><div class="lr-name">Orange Juice 52oz</div><div class="lr-detail">→ Walmart</div><div class="lr-price">$3.69</div></div>
+            <div class="list-row"><div class="lr-icon">🫙</div><div class="lr-name">Greek Yogurt 32oz</div><div class="lr-detail">→ Kroger</div><div class="lr-price">$4.49</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEIPTS -->
+      <div id="tab-receipts" class="app-tab">
+        <div class="page-title">RECEIPT <span>SCANNER</span></div>
+        <div class="page-sub">AI-POWERED · LOCAL PROCESSING ONLY</div>
+
+        <div class="receipt-scan-area" onclick="alert('Receipt scanning requires camera access on mobile device.')">
+          <div class="rs-icon">📷</div>
+          <p><strong>Tap to scan a receipt</strong></p>
+          <p>AI reads merchant, items, total, and date</p>
+        </div>
+
+        <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:12px">RECENT RECEIPTS — 2 PENDING SUBMISSION</div>
+
+        <div class="receipt-card">
+          <div>
+            <div class="rc-store">Kroger</div>
+            <div class="rc-date">Jun 5, 2026 · 14 items</div>
+            <div class="rc-tag" style="margin-top:6px">⚠️ SUBMIT TO KROGER PLUS</div>
+          </div>
+          <div class="rc-total">$34.12</div>
+        </div>
+        <div class="receipt-card">
+          <div>
+            <div class="rc-store">McDonald's</div>
+            <div class="rc-date">Jun 5, 2026 · 3 items</div>
+            <div class="rc-tag" style="margin-top:6px">⚠️ SUBMIT TO MCDONALDS APP</div>
+          </div>
+          <div class="rc-total">$12.47</div>
+        </div>
+        <div class="receipt-card">
+          <div>
+            <div class="rc-store">Walmart</div>
+            <div class="rc-date">Jun 3, 2026 · 22 items</div>
+            <div style="font-size:9px;color:var(--lime);margin-top:6px;letter-spacing:1px">✓ SUBMITTED</div>
+          </div>
+          <div class="rc-total">$87.63</div>
+        </div>
+        <div class="receipt-card">
+          <div>
+            <div class="rc-store">Starbucks</div>
+            <div class="rc-date">Jun 2, 2026 · 2 items</div>
+            <div style="font-size:9px;color:var(--lime);margin-top:6px;letter-spacing:1px">✓ SUBMITTED</div>
+          </div>
+          <div class="rc-total">$11.80</div>
+        </div>
+      </div>
+
+      <!-- REWARDS -->
+      <div id="tab-rewards" class="app-tab">
+        <div class="page-title">REWARDS <span>TRACKER</span></div>
+        <div class="page-sub">GROCERY + RESTAURANT PROGRAMS</div>
+
+        <div class="reward-card">
+          <div class="rw-top">
+            <div class="rw-logo">🏪</div>
+            <div><div class="rw-brand">Kroger Plus</div><div style="font-size:10px;color:var(--text-muted)">Fuel points expire Jul 31</div></div>
+            <div class="rw-pts">840 <span>pts</span></div>
+          </div>
+          <div>
+            <span class="promo-chip">🔥 3x fuel points this week</span>
+            <span class="promo-chip">FREE Friday item available</span>
+          </div>
+        </div>
+
+        <div class="reward-card">
+          <div class="rw-top">
+            <div class="rw-logo">☕</div>
+            <div><div class="rw-brand">Starbucks Rewards</div><div style="font-size:10px;color:var(--text-muted)">Gold Star member</div></div>
+            <div class="rw-pts">320 <span>stars</span></div>
+          </div>
+          <div>
+            <span class="promo-chip">Double stars Mon-Thu</span>
+            <span class="promo-chip">Free drink at 400 stars</span>
+          </div>
+        </div>
+
+        <div class="reward-card">
+          <div class="rw-top">
+            <div class="rw-logo">🍔</div>
+            <div><div class="rw-brand">McDonald's</div><div style="font-size:10px;color:var(--text-muted)">MyMcDonald's Rewards</div></div>
+            <div class="rw-pts">1,100 <span>pts</span></div>
+          </div>
+          <div>
+            <span class="promo-chip">BOGO McDouble today</span>
+            <span class="promo-chip">Free fries at 1,500pts</span>
+          </div>
+        </div>
+
+        <div class="reward-card">
+          <div class="rw-top">
+            <div class="rw-logo">🐮</div>
+            <div><div class="rw-brand">Chick-fil-A One</div><div style="font-size:10px;color:var(--text-muted)">Silver member</div></div>
+            <div class="rw-pts">580 <span>pts</span></div>
+          </div>
+          <div>
+            <span class="promo-chip">Spicy Deluxe deal Sat</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROMOS -->
+      <div id="tab-promos" class="app-tab">
+        <div class="page-title">APP <span>PROMOS</span></div>
+        <div class="page-sub">CURRENT DEALS FROM ALL CONNECTED APPS</div>
+
+        <div class="panel">
+          <div class="panel-header"><h3>🏪 Kroger — 4 Active Promos</h3></div>
+          <div class="panel-body">
+            <div class="list-row"><div class="lr-name">3x Fuel Points on groceries</div><div class="lr-detail">Expires Sun</div></div>
+            <div class="list-row"><div class="lr-name">FREE Chobani yogurt — digital coupon</div><div class="lr-detail">Limit 1</div></div>
+            <div class="list-row"><div class="lr-name">$5 off $30 with Boost membership</div><div class="lr-detail">Online only</div></div>
+            <div class="list-row"><div class="lr-name">Buy 2 get 1 free cereal</div><div class="lr-detail">Select brands</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h3>🏪 Albertsons — 2 Active Promos</h3></div>
+          <div class="panel-body">
+            <div class="list-row"><div class="lr-name">$10 off $50 — app exclusive</div><div class="lr-detail">Clip coupon</div></div>
+            <div class="list-row"><div class="lr-name">Double Gas Rewards weekend</div><div class="lr-detail">Sat-Sun only</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h3>🍔 McDonald's — 3 Active Promos</h3></div>
+          <div class="panel-body">
+            <div class="list-row"><div class="lr-name">BOGO McDouble — today only</div><div class="lr-detail">App order</div></div>
+            <div class="list-row"><div class="lr-name">Free medium fries with $1+ purchase</div><div class="lr-detail">Mon-Fri</div></div>
+            <div class="list-row"><div class="lr-name">$1 any size drink</div><div class="lr-detail">Ongoing</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEKLY ADS -->
+      <div id="tab-ads" class="app-tab">
+        <div class="page-title">WEEKLY <span>ADS</span></div>
+        <div class="page-sub">FLIPP INTEGRATION · UPDATED WEEKLY</div>
+
+        <div class="panel">
+          <div class="panel-header"><h3>🏪 Kroger — This Week's Best</h3></div>
+          <div class="panel-body">
+            <div class="list-row"><div class="lr-icon">🥩</div><div class="lr-name">80/20 Ground Beef 3lb</div><div class="lr-price">$9.99</div></div>
+            <div class="list-row"><div class="lr-icon">🍗</div><div class="lr-name">Boneless Chicken Thighs 3lb</div><div class="lr-price">$6.99</div></div>
+            <div class="list-row"><div class="lr-icon">🥤</div><div class="lr-name">Pepsi 12-pack cans</div><div class="lr-price">$4.99</div></div>
+            <div class="list-row"><div class="lr-icon">🫒</div><div class="lr-name">EVOO 17oz</div><div class="lr-price">$5.49</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h3>🏪 Albertsons — This Week's Best</h3></div>
+          <div class="panel-body">
+            <div class="list-row"><div class="lr-icon">🍓</div><div class="lr-name">Strawberries 1lb</div><div class="lr-price">$1.99</div></div>
+            <div class="list-row"><div class="lr-icon">🥬</div><div class="lr-name">Romaine Hearts 3-pack</div><div class="lr-price">$2.49</div></div>
+            <div class="list-row"><div class="lr-icon">🧈</div><div class="lr-name">Land O' Lakes Butter 2lb</div><div class="lr-price">$6.99</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STORES -->
+      <div id="tab-stores" class="app-tab">
+        <div class="page-title">STORE <span>CONNECTIONS</span></div>
+        <div class="page-sub">CREDENTIALS STORED ENCRYPTED ON DEVICE ONLY</div>
+
+        <div class="notif-bar" style="margin-bottom:24px">
+          🔒 <strong>Zero server storage.</strong> Your login credentials never leave your device. All syncing happens locally.
+        </div>
+
+        <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:12px">GROCERY STORES</div>
+        <div class="store-grid" style="margin-bottom:28px">
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Kroger</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Walmart</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Albertsons</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Safeway</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🎯</div><div class="st-name">Target</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile" onclick="alert('Connect Publix — enter your Publix account credentials to sync prices and coupons.')"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Publix</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Aldi')"><div class="st-dot"></div><div class="st-emoji">🏪</div><div class="st-name">Aldi</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Costco')"><div class="st-dot"></div><div class="st-emoji">🏬</div><div class="st-name">Costco</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Trader Joe&apos;s')"><div class="st-dot"></div><div class="st-emoji">🌺</div><div class="st-name">Trader Joe's</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Whole Foods')"><div class="st-dot"></div><div class="st-emoji">🌿</div><div class="st-name">Whole Foods</div><div class="st-status">TAP TO CONNECT</div></div>
+        </div>
+
+        <div style="font-size:10px;letter-spacing:3px;color:var(--text-muted);margin-bottom:12px">RESTAURANTS</div>
+        <div class="store-grid">
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🍔</div><div class="st-name">McDonald's</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">☕</div><div class="st-name">Starbucks</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile connected"><div class="st-dot"></div><div class="st-emoji">🐮</div><div class="st-name">Chick-fil-A</div><div class="st-status">CONNECTED</div></div>
+          <div class="store-tile" onclick="alert('Connect Subway')"><div class="st-dot"></div><div class="st-emoji">🥖</div><div class="st-name">Subway</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Taco Bell')"><div class="st-dot"></div><div class="st-emoji">🌮</div><div class="st-name">Taco Bell</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Chipotle')"><div class="st-dot"></div><div class="st-emoji">🫔</div><div class="st-name">Chipotle</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Panera')"><div class="st-dot"></div><div class="st-emoji">🥐</div><div class="st-name">Panera</div><div class="st-status">TAP TO CONNECT</div></div>
+          <div class="store-tile" onclick="alert('Connect Burger King')"><div class="st-dot"></div><div class="st-emoji">👑</div><div class="st-name">Burger King</div><div class="st-status">TAP TO CONNECT</div></div>
+        </div>
+      </div>
+
+    </div><!-- /app-main -->
+  </div><!-- /app-layout -->
+</div><!-- /screen-app -->
+
+<!-- ══════════════════════════════════════
+     PRICING SCREEN
+══════════════════════════════════════ -->
+<div id="screen-pricing" class="screen">
+  <div style="max-width:900px;margin:0 auto;padding:60px 24px">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="section-label">Pricing</div>
+      <div class="section-title">SIMPLE.<br>TRANSPARENT.<br>WORTH IT.</div>
+      <p style="font-size:13px;color:var(--text-dim);max-width:500px;margin:0 auto">
+        Start free. No card during beta. Beta users locked in free forever.
+      </p>
+    </div>
+
+    <div class="beta-banner" style="margin-bottom:40px">
+      <div class="beta-banner-left">
+        <div class="beta-icon">⏱️</div>
+        <div>
+          <h3>BETA — 90 DAYS COMPLETELY FREE</h3>
+          <p>Join now. No credit card. Full access. Grandfathered free forever after beta ends.</p>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showScreen('app')">JOIN BETA FREE →</button>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Free Tier</div>
+        <div class="price-tag">$0<span>/mo</span></div>
+        <ul class="price-features">
+          <li>Grocery list builder</li>
+          <li>Manual price entry</li>
+          <li>2 store connections</li>
+          <li>Basic price compare</li>
+          <li class="locked">Live price sync</li>
+          <li class="locked">Basket optimizer</li>
+          <li class="locked">Coupon stacking</li>
+          <li class="locked">Restaurant rewards</li>
+          <li class="locked">Receipt scanner</li>
+          <li class="locked">Weekly ads</li>
+        </ul>
+        <button class="price-btn price-btn-outline" onclick="showScreen('app')">START FREE</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tier">Monthly</div>
+        <div class="price-tag">$3<span>.99/mo</span></div>
+        <ul class="price-features">
+          <li>Everything in Free</li>
+          <li>Unlimited store connections</li>
+          <li>Live price sync</li>
+          <li>Coupon stacking</li>
+          <li>Rewards tracking</li>
+          <li>Basket optimizer</li>
+          <li>Restaurant rewards</li>
+          <li>Brand &amp; size compare</li>
+          <li>Receipt scanner + AI</li>
+          <li>Weekly ads (Flipp)</li>
+          <li>App promo tracker</li>
+        </ul>
+        <button class="price-btn price-btn-lime" onclick="alert('Stripe — monthly subscription $3.99/mo')">START $3.99/MO</button>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Annual</div>
+        <div class="price-tag">$29<span>.99/yr</span></div>
+        <ul class="price-features">
+          <li>Everything in Monthly</li>
+          <li>Save $18 vs monthly</li>
+          <li>Priority sync speed</li>
+          <li>Early feature access</li>
+        </ul>
+        <button class="price-btn price-btn-lime" style="margin-top:auto" onclick="alert('Stripe — annual subscription $29.99/yr')">START $29.99/YR</button>
+      </div>
+    </div>
+
+    <div class="savings-note">Annual plan saves <strong>$18/year</strong> vs monthly billing.</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function switchTab(id, el) {
+    document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function switchTabDirect(id) {
+    document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  function addItem() {
+    const input = document.getElementById('newItem');
+    const val = input.value.trim();
+    if (!val) return;
+    const stores = ['Kroger','Walmart','Albertsons','Safeway','Target'];
+    const prices = ['$1.99','$2.49','$3.29','$4.99','$0.99','$5.49','$2.79'];
+    const store = stores[Math.floor(Math.random()*stores.length)];
+    const price = prices[Math.floor(Math.random()*prices.length)];
+    const el = document.createElement('div');
+    el.className = 'grocery-item';
+    el.innerHTML = `<input type="checkbox"><div class="gi-name">${val}</div><div class="gi-qty">×1</div><div class="gi-best">${price}</div><div class="gi-store">${store}</div><button class="gi-del" onclick="this.closest('.grocery-item').remove()">✕</button>`;
+    document.getElementById('groceryList').prepend(el);
+    input.value = '';
+  }
+</script>
+</body>
+</html>
